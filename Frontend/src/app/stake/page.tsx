@@ -8,6 +8,7 @@ import ProtectedRoute from '@/components/ProtectedRoute';
 export default function StakeForm() {
   const [amount, setAmount] = useState('');
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [selectedToken, setSelectedToken] = useState('');
 
   return (
