@@ -8,11 +8,7 @@ type Transaction = {
   status: 'Pending' | 'Completed' | 'Failed';
 };
 
-type Props = {
-  transactions: Transaction[];
-};
-
-export default function TransactionHistoryTable({ transactions }: Props) {
+export default function TransactionHistoryTable({ transactions }: { transactions: Transaction[] }) {
   return (
     <div className="card bg-[#121212]/80 border border-[#3F3F46] text-white rounded-xl p-6 hover:shadow-lg transition mb-12">
       <div className="flex justify-between items-center mb-6">
