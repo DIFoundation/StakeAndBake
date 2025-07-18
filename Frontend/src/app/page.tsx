@@ -23,7 +23,7 @@ export default function Home() {
         }
         return prev - 1;
       });
-    }, 1000);
+    }, 500);
 
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
