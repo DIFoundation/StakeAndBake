@@ -2,7 +2,7 @@
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function TransactionTable({ data }: { data: any[] }) {
   return (
-    <div className="overflow-auto rounded-lg border border-[#2a2a2a]/80">
+    <div className="overflow-auto rounded-lg border border-[#2a2a2a]/80 w-full">
       <table className="min-w-full bg-[#18181B] text-sm text-left text-gray-400">
         <thead className="text-xs uppercase bg-[#1f1f1f] text-gray-500">
           <tr>

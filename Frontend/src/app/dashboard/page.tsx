@@ -40,7 +40,7 @@ const mockTransactions: Transaction[]  = [
 export default function DashboardPage() {
   const { address } = useAccount();
   const { data: balance } = useBalance({ address: address });
-  const getBalance = balance?.value.toString() || "0";
+  const getBalance = balance?.formatted.toString() || "0";
 
   const totalStaked = "150.75";
   const rewardsEarned = "7.50";
