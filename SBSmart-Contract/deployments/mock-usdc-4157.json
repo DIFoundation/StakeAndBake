@@ -1,0 +1,14 @@
+{
+  "network": "unknown",
+  "chainId": 4157,
+  "contractAddress": "0xdEFAA5459ba8DcC24A7470DB4835C97B0fdf85fc",
+  "deployer": "0xB24023434c3670E100068C925A87fE8F500d909a",
+  "tokenName": "STAKEBAKE USDC",
+  "tokenSymbol": "USDC",
+  "decimals": 6,
+  "totalSupply": "1000000.0",
+  "faucetAmount": "1000.0",
+  "faucetCooldown": "24 hours",
+  "deploymentTime": "2025-07-19T17:13:49.852Z",
+  "transactionHash": "0x375ff4af3b1b269a2388aca1ddc7087d5af313d14fc2e661bfd066be20166eb6"
+}

@@ -1,0 +1,12 @@
+{
+  "network": "unknown",
+  "chainId": 4157,
+  "contractAddress": "0xF321b818669d56C8f11b3617429cD987c745B0D2",
+  "deployer": "0xB24023434c3670E100068C925A87fE8F500d909a",
+  "tokenName": "Cross Finance Token",
+  "tokenSymbol": "XFI",
+  "decimals": 18,
+  "initialSupply": "1000000.0",
+  "deploymentTime": "2025-07-19T17:20:04.364Z",
+  "transactionHash": "0xc4cda0f84ff94a5ed8e1462d5458cf1ae5303943e76c7f9613ca6787cf676ad2"
+}

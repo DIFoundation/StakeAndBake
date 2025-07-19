@@ -1,0 +1,16 @@
+{
+    "name": "Stake and Bake: sbFT Genesis",
+    "description": "This premium NFT captures the futuristic spirit of DeFi with a glowing sbFT token, cyberpunk-styled blockchain networks, and a digital oven representing yield generation. Stake. Earn. Govern. Bake value across chains.",
+    "image": "ipfs://bafybeie6mqntu4kxwjafncpx5mlflzido5ute6ylduyexyimphvvycdzuy",  
+    "attributes": [
+      { "trait_type": "Theme", "value": "DeFi & Staking" },
+      { "trait_type": "Token", "value": "sbFT" },
+      { "trait_type": "Chains Interconnected", "value": 3 },
+      { "trait_type": "Aesthetic", "value": "Cyberpunk Neon" },
+      { "trait_type": "Forge Type", "value": "Digital Oven" },
+      { "trait_type": "Governance", "value": "DAO Enabled" },
+      { "trait_type": "Yield Indicator", "value": "%" },
+      { "trait_type": "Collectible Frames", "value": "Yes" }
+    ]
+  }
+  
