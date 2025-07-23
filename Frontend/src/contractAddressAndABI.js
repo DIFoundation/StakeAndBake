@@ -1,6 +1,6 @@
 
-const xfiTokenAddress = "0xF321b818669d56C8f11b3617429cD987c745B0D2";
-const xfiTokenAbi = [
+export const xfiTokenAddress = "0xF321b818669d56C8f11b3617429cD987c745B0D2";
+export const xfiTokenAbi = [
   {
     inputs: [
       {
@@ -493,8 +493,8 @@ const xfiTokenAbi = [
   },
 ];
 
-const sbFTTokenAddress = "0x69a0eE537F098C5F84ef5d4c8b4215860F5d5206";
-const sbFTTokenAbi = [
+export const sbFTTokenAddress = "0x69a0eE537F098C5F84ef5d4c8b4215860F5d5206";
+export const sbFTTokenAbi = [
   {
     inputs: [
       {
@@ -1052,8 +1052,8 @@ const sbFTTokenAbi = [
   },
 ];
 
-const mockUSDCAddress = "0xdEFAA5459ba8DcC24A7470DB4835C97B0fdf85fc";
-const mockUSDCAbi = [
+export const mockUSDCAddress = "0xdEFAA5459ba8DcC24A7470DB4835C97B0fdf85fc";
+export const mockUSDCAbi = [
   {
     inputs: [],
     stateMutability: "nonpayable",
@@ -1606,8 +1606,8 @@ const mockUSDCAbi = [
   },
 ];
 
-const stakeAndBakeNFTAddress = "0x9F69a019DC9F4a4A30a255B572E7F425a7814637";
-const stakeAndBakeNFTAbi = [
+export const stakeAndBakeNFTAddress = "0x9F69a019DC9F4a4A30a255B572E7F425a7814637";
+export const stakeAndBakeNFTAbi = [
   {
     inputs: [
       {
@@ -2595,8 +2595,8 @@ const stakeAndBakeNFTAbi = [
   },
 ];
 
-const stakingContractAddress = "0xb59E4c855a8E142e389bB535962622B42955b9BC";
-const stakingContractAbi = [
+export const stakingContractAddress = "0xb59E4c855a8E142e389bB535962622B42955b9BC";
+export const stakingContractAbi = [
   {
     inputs: [
       {
@@ -3357,8 +3357,8 @@ const stakingContractAbi = [
   },
 ];
 
-const sbFTMarketplaceAddress = "0x9c07F3E090c5E21295C6111dAD966d057220D36e";
-const sbFTMarketplaceAbi = [
+export const sbFTMarketplaceAddress = "0x9c07F3E090c5E21295C6111dAD966d057220D36e";
+export const sbFTMarketplaceAbi = [
   {
     inputs: [
       {
@@ -4039,18 +4039,3 @@ const sbFTMarketplaceAbi = [
     type: "function",
   },
 ];
-
-module.exports = {
-  xfiTokenAbi,
-  xfiTokenAddress,
-  sbFTTokenAbi,
-  sbFTTokenAddress,
-  mockUSDCAbi,
-  mockUSDCAddress,
-  stakeAndBakeNFTAbi,
-  stakeAndBakeNFTAddress,
-  stakingContractAbi,
-  stakingContractAddress,
-  sbFTMarketplaceAbi,
-  sbFTMarketplaceAddress,
-};

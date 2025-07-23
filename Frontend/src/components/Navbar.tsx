@@ -7,6 +7,7 @@ import { useAccount } from "wagmi";
 import { usePathname } from "next/navigation";
 import { EllipsisVertical, X } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
+import { xfiTokenAddress, xfiTokenAbi } from "@/contractAddressAndABI";
 
 export default function Navbar() {
   const { isConnected } = useAccount();
