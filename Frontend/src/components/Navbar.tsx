@@ -18,6 +18,7 @@ export default function Navbar() {
     ? [
         { href: "/dashboard", label: "Dashboard" },
         { href: "/stake", label: "Stake" },
+        {href: "/marketplace", label: "Marketplace"},
         { href: "/portfolio", label: "My sbFT" },
         { href: "https://crossfi.org/", label: "Crossfi", external: true },
         {
