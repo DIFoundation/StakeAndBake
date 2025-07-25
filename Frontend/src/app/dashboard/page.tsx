@@ -1,6 +1,6 @@
 "use client";
 
-import { useAccount, useBalance, useContractRead, useReadContract } from "wagmi";
+import { useAccount, useBalance, useContractRead, useReadContract, useEnsAddress } from "wagmi";
 import TotalStakedStats from "@/components/dashboard/TotalStakedStats";
 import RewardsBreakdownChart from "@/components/dashboard/RewardsBreakdownChart";
 import TransactionHistoryTable from "@/components/dashboard/TransactionHistoryTable";
@@ -61,7 +61,7 @@ export default function DashboardPage() {
     abi: xfiTokenAbi,
     functionName: 'balanceOf',
     args: [address],
-    query: { enabled: !!address }
+    query: { enabled: !!address },
     enabled: Boolean(xfiTokenAddress),
   });
 

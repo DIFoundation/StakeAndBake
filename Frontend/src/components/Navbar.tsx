@@ -7,13 +7,27 @@ import { useAccount } from "wagmi";
 import { usePathname } from "next/navigation";
 import { EllipsisVertical, X } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
-import { xfiTokenAddress, xfiTokenAbi } from "@/contractAddressAndABI";
+// import TokenSwitcherBalance from "@/components/SwitchBalance";
 
 export default function Navbar() {
-  const { isConnected } = useAccount();
+  const { isConnected, address } = useAccount();
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  // const [tokenSelectorOpen, setTokenSelectorOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const tokenSelectorRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const navItems = isConnected
     ? [
@@ -122,13 +136,19 @@ export default function Navbar() {
             )}
           </button>
 
-          {/* Desktop Wallet */}
-          <div className="hidden md:block">
+          {/* Desktop Wallet and Token Selector */}
+          <div className="hidden md:flex items-center space-x-4">
+            <div className="relative" ref={tokenSelectorRef}>
+              {/* <TokenSwitcherBalance /> */}
+              
+            </div>
+
             <ConnectButton
               accountStatus="address"
               chainStatus="icon"
               showBalance={true}
             />
+
           </div>
         </div>
       </div>
@@ -168,13 +188,16 @@ export default function Navbar() {
             )
           )}
 
-          {/* Mobile Wallet Button */}
-          <div className="flex justify-center pt-4">
-            <ConnectButton
-              accountStatus="address"
-              chainStatus="icon"
-              showBalance={true}
-            />
+          {/* Mobile Token Selector and Wallet */}
+          <div className="space-y-4 pt-4">
+            
+            <div className="flex justify-center">
+              <ConnectButton
+                accountStatus="address"
+                chainStatus="icon"
+                showBalance={true}
+              />
+            </div>
           </div>
         </div>
       )}

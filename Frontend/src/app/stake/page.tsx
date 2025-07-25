@@ -1,185 +1,131 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { ethers } from "ethers";
-import { ChevronDown } from "lucide-react";
-import ProtectedRoute from "@/components/ProtectedRoute";
-import {
-  stakingContractAbi,
-  stakingContractAddress,
-  xfiTokenAbi,
-  xfiTokenAddress,
-} from "@/contractAddressAndABI";
+import { useState, useEffect } from "react";
+import { useAccount, useBalance, useWriteContract, useReadContract, useWaitForTransactionReceipt } from "wagmi";
+import { parseUnits, formatUnits } from "viem";
+import { stakingContractAbi, stakingContractAddress, xfiTokenAbi, xfiTokenAddress } from "@/contractAddressAndABI";
+import { Loader2 } from "lucide-react";
 
-export default function StakePage() {
+export default function SimpleStakePage() {
+  const { isConnected, address } = useAccount();
   const [amount, setAmount] = useState("");
-  const [isApproved, setIsApproved] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
-  // const [provider, setProvider] = useState<ethers.BrowserProvider | null>(null);
-  const [signer, setSigner] = useState<ethers.Signer | null>(null);
-  const [stakingContract, setStakingContract] = useState<ethers.Contract | null>(null);
-  const [tokenContract, setTokenContract] = useState<ethers.Contract | null>(null);
+  const { data: balance } = useBalance({ address });
+  const { data: tokenBalance } = useReadContract({
+    address: xfiTokenAddress,
+    functionName: "balanceOf",
+    args: [address],
+    query: { enabled: !!address },
+  });
+ 
+
+
+
+  const { data: allowance, refetch: refetchAllowance } = useReadContract({
+    address: xfiTokenAddress,
+    abi: xfiTokenAbi,
+    functionName: "allowance",
+    args: [address, stakingContractAddress],
+    query: { enabled: !!address },
+  });
+
+  const { writeContract: approveWrite, data: approveHash, isPending: approving } = useWriteContract();
+  const { writeContract: stakeWrite, data: stakeHash, isPending: staking } = useWriteContract();
+
+  const { isSuccess: approved } = useWaitForTransactionReceipt({ hash: approveHash });
+  const { isSuccess: staked } = useWaitForTransactionReceipt({ hash: stakeHash });
 
   useEffect(() => {
-    async function init() {
-      if (window.ethereum) {
-        const provider = new ethers.BrowserProvider(window.ethereum);
-        await provider.send("eth_requestAccounts", []);
-        const signer = await provider.getSigner();
-
-        const staking = new ethers.Contract(stakingContractAddress, stakingContractAbi, signer);
-        const token = new ethers.Contract(xfiTokenAddress, xfiTokenAbi, signer);
-
-        // setProvider(provider);
-        setSigner(signer);
-        setStakingContract(staking);
-        setTokenContract(token);
-
-        const userAddress = await signer.getAddress();
-        const allowance = await token.allowance(userAddress, stakingContractAddress);
-        setIsApproved(allowance > 0);
-      }
+    if (approved) {
+      setSuccess("Token approved successfully.");
+      refetchAllowance();
     }
+  }, [approved, refetchAllowance]);
 
-    init();
-  }, []);
+  useEffect(() => {
+    if (staked) {
+      setSuccess("Staking successful.");
+      setAmount("");
+    }
+  }, [staked]);
 
-  const handleApprove = async () => {
-    if (!tokenContract || !signer) return;
+  const handleApprove = () => {
+    setError("");
+    if (!amount) return setError("Enter amount");
+
     try {
-      setLoading(true);
-      const amountInWei = ethers.parseEther(amount || "0");
-      const tx = await tokenContract.approve(stakingContractAddress, amountInWei);
-      await tx.wait();
-      setIsApproved(true);
-      alert("Approval successful");
-    } catch (err) {
-      console.error(err);
-      alert("Approval failed");
-    } finally {
-      setLoading(false);
+      const value = parseUnits(amount, 18);
+      approveWrite({
+        address: xfiTokenAddress,
+        abi: xfiTokenAbi,
+        functionName: "approve",
+        args: [stakingContractAddress, value],
+      });
+    } catch {
+      setError("Failed to approve tokens.");
     }
   };
 
-  const handleStake = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!stakingContract || !signer) return;
+  const handleStake = () => {
+    setError("");
+    if (!amount) return setError("Enter amount");
 
     try {
-      setLoading(true);
-      const amountInWei = ethers.parseEther(amount);
-      const tx = await stakingContract.stake(amountInWei);
-      await tx.wait();
-      alert("Stake successful!");
-      setAmount(""); // Clear input
-    } catch (err) {
-      console.error(err);
-      alert("Stake failed");
-    } finally {
-      setLoading(false);
+      const value = parseUnits(amount, 18);
+      console.log(value, allowance);
+      if (allowance && value > allowance) return setError("Insufficient allowance. Approve first.");
+      stakeWrite({
+        address: stakingContractAddress,
+        abi: stakingContractAbi,
+        functionName: "stake",
+        args: [value],
+      });
+    } catch {
+      setError("Staking failed.");
     }
   };
-
-  const handleClaimRewards = async () => {
-    if (!stakingContract || !signer) return;
-    try {
-      setLoading(true);
-      const tx = await stakingContract.claimRewards();
-      await tx.wait();
-      alert("Rewards claimed");
-    } catch (err) {
-      console.error(err);
-      alert("Claim failed");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleCompoundRewards = async () => {
-    if (!stakingContract || !signer) return;
-    try {
-      setLoading(true);
-      const tx = await stakingContract.compoundRewards();
-      await tx.wait();
-      alert("Rewards compounded");
-    } catch (err) {
-      console.error(err);
-      alert("Compound failed");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const isAmountValid = parseFloat(amount) >= 0.001;
 
   return (
-    <ProtectedRoute>
-      <div className="min-h-screen bg-[#1a1a1a]/80 flex items-center justify-center px-4 py-10 mt-16 sm:mx-[6%] md:mx-[8%] lg:mx-[10%]">
-        <div className="border border-[#3F3F46] bg-gray-600/50 w-full max-w-md rounded-xl p-8 shadow-lg">
-          <h1 className="text-3xl font-bold text-white mb-8">Stake Your XFI</h1>
+    <div className="min-h-screen flex items-center justify-center bg-gray-900/50 text-white px-4">
+      <div className="max-w-md w-full bg-gray-800 p-6 rounded-lg">
+        <h2 className="text-2xl font-bold mb-4">Stake XFI Tokens</h2>
 
-          <form className="flex flex-col" onSubmit={handleStake}>
-            {/* Token Selector (static for now) */}
-            <div className="mb-6">
-              <div className="flex items-center justify-between px-4 py-3 rounded-lg bg-[#141414] text-white">
-                <span>XFI</span>
-                <ChevronDown size={16} />
-              </div>
-            </div>
+        <p className="text-sm mb-2">
+          Wallet Balance: {tokenBalance ? formatUnits(tokenBalance, 18) : "0"} XFI
+          {balance && ` (${formatUnits(balance.value, 18)} XFI)`}
+        </p>
 
-            {/* Amount Input */}
-            <div className="mb-6">
-              <input
-                type="number"
-                step="0.0001"
-                placeholder="Minimum 0.001 XFI"
-                className="w-full px-4 py-3 rounded-lg bg-[#141414] text-white placeholder-gray-500 outline-none"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-              />
-            </div>
+        <input
+          type="number"
+          className="w-full mb-4 p-3 rounded bg-gray-700 text-white"
+          placeholder="Enter amount"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+        />
 
-            {/* Approve */}
-            <button
-              type="button"
-              onClick={handleApprove}
-              disabled={loading || !isAmountValid}
-              className="w-full py-3 mb-4 rounded-lg bg-[#f59e0b] text-white font-semibold hover:bg-[#d97706] transition"
-            >
-              {loading ? "Approving..." : "Approve"}
-            </button>
+        {error && <p className="text-red-400 mb-2 text-sm">{error}</p>}
+        {success && <p className="text-green-400 mb-2 text-sm">{success}</p>}
 
-            {/* Stake */}
-            <button
-              type="submit"
-              disabled={!isApproved || !isAmountValid || loading}
-              className="w-full py-3 rounded-lg bg-[#7c3aed] text-white font-semibold hover:bg-[#6d28d9] transition"
-            >
-              {loading ? "Staking..." : "Stake"}
-            </button>
-          </form>
+        <div className="space-y-3">
+          <button
+            onClick={handleApprove}
+            disabled={approving}
+            className="w-full py-2 bg-yellow-600 rounded hover:bg-yellow-700 disabled:opacity-50"
+          >
+            {approving ? <Loader2 className="animate-spin h-4 w-4 mx-auto" /> : "Approve Token"}
+          </button>
 
-          {/* Reward Actions */}
-          <div className="mt-6 grid grid-cols-1 gap-4">
-            <button
-              onClick={handleClaimRewards}
-              disabled={loading}
-              className="w-full py-2 rounded-lg bg-[#10b981] text-white font-medium hover:bg-[#059669]"
-            >
-              Claim Rewards
-            </button>
-
-            <button
-              onClick={handleCompoundRewards}
-              disabled={loading}
-              className="w-full py-2 rounded-lg bg-[#2563eb] text-white font-medium hover:bg-[#1d4ed8]"
-            >
-              Compound Rewards
-            </button>
-          </div>
+          <button
+            onClick={handleStake}
+            disabled={staking}
+            className="w-full py-2 bg-purple-600 rounded hover:bg-purple-700 disabled:opacity-50"
+          >
+            {staking ? <Loader2 className="animate-spin h-4 w-4 mx-auto" /> : "Stake Token"}
+          </button>
         </div>
       </div>
-    </ProtectedRoute>
+    </div>
   );
 }
