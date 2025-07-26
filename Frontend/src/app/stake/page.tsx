@@ -30,6 +30,7 @@ export default function SimpleStakePage() {
     query: { enabled: !!address },
   });
 
+  const allowanceData: bigint = (allowance as bigint) ?? 0n;
   const { writeContract: approveWrite, data: approveHash, isPending: approving } = useWriteContract();
   const { writeContract: stakeWrite, data: stakeHash, isPending: staking } = useWriteContract();
 
@@ -78,7 +79,7 @@ export default function SimpleStakePage() {
 
     try {
       const value = parseUnits(amount, 18);
-      if (allowance && value > allowance) return setError("Insufficient allowance. Approve first.");
+      if (allowance && value > allowanceData) return setError("Insufficient allowance. Approve first.");
       stakeWrite({
         address: stakingContractAddress,
         abi: stakingContractAbi,
@@ -87,6 +88,7 @@ export default function SimpleStakePage() {
       });
     } catch {
       setError("Staking failed.");
+      toast.error("Staking failed.");
     }
   };
 
