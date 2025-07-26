@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { toast } from "react-toastify";
+import Image from "next/image";
 import { useAccount, useBalance, useWriteContract, useReadContract, useWaitForTransactionReceipt } from "wagmi";
 import { parseUnits, formatUnits } from "viem";
 import { stakingContractAbi, stakingContractAddress, xfiTokenAbi, xfiTokenAddress } from "@/contractAddressAndABI";
@@ -37,6 +39,7 @@ export default function SimpleStakePage() {
   useEffect(() => {
     if (approved) {
       setSuccess("Token approved successfully.");
+      toast.success("Token approved successfully.");
       refetchAllowance();
     }
   }, [approved, refetchAllowance]);
@@ -44,13 +47,15 @@ export default function SimpleStakePage() {
   useEffect(() => {
     if (staked) {
       setSuccess("Staking successful! Your sbFT tokens are ready!");
+      toast.success("Staking successful! Your sbFT tokens are ready!");
       setAmount("");
     }
   }, [staked]);
 
   const handleApprove = () => {
     setError("");
-    if (!amount) return setError("Enter amount");
+    if (!amount) 
+      return setError("Enter amount"), toast.warning("Kindly enter amount");
 
     try {
       const value = parseUnits(amount, 18);
@@ -62,12 +67,14 @@ export default function SimpleStakePage() {
       });
     } catch {
       setError("Failed to approve tokens.");
+      toast.error("Failed to approve tokens.");
     }
   };
 
   const handleStake = () => {
     setError("");
-    if (!amount) return setError("Enter amount");
+    if (!amount) 
+      return setError("Enter amount"), toast.warning("Kindly enter amount");
 
     try {
       const value = parseUnits(amount, 18);
@@ -195,9 +202,11 @@ export default function SimpleStakePage() {
             <div className="bg-[#27272A] border border-[#3F3F46] rounded-xl p-8 hover:shadow-lg transition text-center">
               <div className="relative mx-auto w-40 h-40 mb-6">
                 <div className="absolute inset-0 bg-purple-500/20 rounded-full blur-xl animate-pulse"></div>
-                <img 
-                  src="stakebake.png" 
+                <Image 
+                  src="/stakebake.png" 
                   alt="Stake & Bake NFT"
+                  width={200}
+                  height={200}
                   className="relative w-full h-full object-cover rounded-full border-2 border-purple-400 shadow-xl"
                 />
               </div>

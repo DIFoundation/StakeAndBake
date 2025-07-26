@@ -10,7 +10,7 @@ import { useState, useEffect, useRef } from "react";
 // import TokenSwitcherBalance from "@/components/SwitchBalance";
 
 export default function Navbar() {
-  const { isConnected, address } = useAccount();
+  const { isConnected } = useAccount();
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   // const [tokenSelectorOpen, setTokenSelectorOpen] = useState(false);
@@ -57,6 +57,8 @@ export default function Navbar() {
           external: true,
         },
       ];
+
+     
 
   // Close menu on outside click
   useEffect(() => {

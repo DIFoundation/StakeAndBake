@@ -22,38 +22,6 @@ import {
 import { formatEther } from "viem";
 import { useTransactionHistory } from "@/hooks/useTransactionHistory";
 
-type Transaction = {
-  id: string;
-  type: "Stake" | "Unstake" | "Claim";
-  amount: string;
-  timestamp: number;
-  status: "Pending" | "Completed" | "Failed";
-};
-
-const mockTransactions: Transaction[] = [
-  {
-    id: "0x123",
-    type: "Stake",
-    amount: "100",
-    timestamp: Date.now(),
-    status: "Pending",
-  },
-  {
-    id: "0x456",
-    type: "Unstake",
-    amount: "50",
-    timestamp: Date.now(),
-    status: "Completed",
-  },
-  {
-    id: "0x789",
-    type: "Claim",
-    amount: "25",
-    timestamp: Date.now(),
-    status: "Failed",
-  },
-];
-
 // Utility function to format large numbers
 function formatBalance(balance: string | number, decimals: number = 4): string {
   const num = typeof balance === "string" ? parseFloat(balance) : balance;
@@ -77,6 +45,7 @@ function calculateEarnings(
 }
 
 // Safe BigInt converter
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function safeBigIntToString(value: any, fallback: string = "0.00"): string {
   try {
     if (!value) return fallback;
@@ -224,6 +193,7 @@ function CompoundRewardsButton({
 export default function DashboardPage() {
   const { address, isConnected } = useAccount();
   const { data: ethBalance } = useBalance({ address });
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [refreshKey, setRefreshKey] = useState(0);
 
   const { transactions: userTransactions, isLoading: transactionsLoading } =
@@ -237,8 +207,8 @@ export default function DashboardPage() {
   // Read XFI token balance
   const {
     data: xfiBalance,
-    isError: xfiBalanceError,
-    isLoading: xfiBalanceLoading,
+    // isError: xfiBalanceError,
+    // isLoading: xfiBalanceLoading,
   } = useReadContract({
     address: xfiTokenAddress,
     abi: xfiTokenAbi,

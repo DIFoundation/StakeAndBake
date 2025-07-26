@@ -3,10 +3,12 @@
 import { useStakeAndBakeNFT } from '@/hooks/useStakeAndBakeNFT';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useState } from 'react';
 import { ExternalLink, TrendingUp, TrendingDown, Clock, DollarSign } from 'lucide-react';
 
 // Transaction Row Component
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function TransactionRow({ transaction }: { transaction: any }) {
   const getTypeColor = (type: string) => {
     switch (type) {
@@ -56,20 +58,21 @@ function TransactionRow({ transaction }: { transaction: any }) {
         </div>
       </div>
       
-      <a
-        href={`https://explorer.crossfi.org/tx/${transaction.hash}`}
+      <Link
+        href={`https://test.xfiscan.com/tx/${transaction.hash}`}
         target="_blank"
         rel="noopener noreferrer"
         className="text-blue-400 hover:text-blue-300 transition-colors"
         title="View on CrossFi Explorer"
       >
         <ExternalLink className="w-4 h-4" />
-      </a>
+      </Link>
     </div>
   );
 }
 
 // NFT Banner Component
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function NFTBanner({ nftData }: { nftData: any }) {
   return (
     <div className="relative overflow-hidden rounded-2xl mb-8">
@@ -87,9 +90,11 @@ function NFTBanner({ nftData }: { nftData: any }) {
         <div className="flex flex-col md:flex-row items-start md:items-center space-y-6 md:space-y-0 md:space-x-8">
           {/* NFT Image */}
           <div className="relative">
-            <img
+            <Image
               src={nftData.image}
               alt={nftData.name}
+              width={200}
+              height={200}
               className="w-32 h-32 md:w-48 md:h-48 rounded-xl border-2 border-white/20 shadow-2xl"
             />
             <div className="absolute -top-2 -right-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs px-2 py-1 rounded-full font-bold">
@@ -133,6 +138,7 @@ function NFTBanner({ nftData }: { nftData: any }) {
 }
 
 // User Stats Component
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function UserStats({ nftData }: { nftData: any }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">

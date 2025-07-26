@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useAccount, useReadContracts } from 'wagmi';
+import { useState } from 'react';
+import { useAccount } from 'wagmi';
 import MarketplaceHeader from '@/components/marketplace/MarketplaceHeader';
 import OrderBook from '@/components/marketplace/OrderBook';
 import CreateOrderModal from '@/components/marketplace/CreateOrderModal';
@@ -82,6 +82,7 @@ export default function MarketplacePage() {
                   return (
                     <button
                       key={tab.id}
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
                       onClick={() => setActiveTab(tab.id as any)}
                       className={`flex items-center gap-2 px-4 py-2 text-sm font-medium border-b-2 transition ${
                         activeTab === tab.id

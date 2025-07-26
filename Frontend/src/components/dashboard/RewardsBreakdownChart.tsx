@@ -8,8 +8,6 @@ type Props = {
   totalFeesCollected: number;
 };
 
-const COLORS = ["#8b5cf6", "#10b981", "#f59e0b", "#ef4444"];
-
 export default function RewardsBreakdownChart({ stakedAmount, claimedAmount, totalFeesCollected }: Props) {
   // Create data for the charts
   const barData = [
@@ -24,6 +22,7 @@ export default function RewardsBreakdownChart({ stakedAmount, claimedAmount, tot
     { name: "Fees Collected", value: totalFeesCollected, fill: "#f59e0b" },
   ].filter(item => item.value > 0); // Only show non-zero values
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (

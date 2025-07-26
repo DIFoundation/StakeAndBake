@@ -1,8 +1,7 @@
 // hooks/useTransactionHistory.ts
 import { useState, useEffect } from 'react';
 import { useAccount, usePublicClient } from 'wagmi';
-import { stakingContractAddress, stakingContractAbi } from '@/contractAddressAndABI';
-import { parseEventLogs } from 'viem';
+import { stakingContractAddress } from '@/contractAddressAndABI';
 
 type Transaction = {
   id: string;

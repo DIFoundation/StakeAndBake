@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAccount, useWriteContract, useWaitForTransactionReceipt, useReadContracts } from 'wagmi';
-import { parseEther, parseUnits, formatEther, formatUnits, maxUint256 } from 'viem';
+import { parseUnits, formatUnits, maxUint256 } from 'viem';
 import { X, ShoppingCart, DollarSign, Loader2, AlertCircle, CheckCircle } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { sbFTMarketplaceAddress, sbFTMarketplaceAbi, sbFTTokenAddress, mockUSDCAddress } from "@/contractAddressAndABI"
@@ -181,11 +181,12 @@ export default function CreateOrderModal({ isOpen, onClose, onOrderCreated }: Pr
         setApprovalStep('none');
       }
     }
-  }, [amount, price, sbftAllowance, usdcAllowance, orderType]);
+  }, [amount, price, sbftAllowance, usdcAllowance, orderType, approvalStep]);
 
   if (!isOpen) return null;
 
   // Parse error messages to be more user-friendly
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function parseErrorMessage(error: any): string {
     if (error.message?.includes('User rejected') || error.message?.includes('user rejected')) {
       return 'Transaction was rejected by user';
@@ -290,6 +291,7 @@ export default function CreateOrderModal({ isOpen, onClose, onOrderCreated }: Pr
         args: [MARKETPLACE_ADDRESS, maxUint256], // This is equivalent to ethers.constants.MaxUint256
       });
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       console.error('Approve error:', err);
       const errorMessage = parseErrorMessage(err);
@@ -357,6 +359,7 @@ export default function CreateOrderModal({ isOpen, onClose, onOrderCreated }: Pr
         });
       }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       console.error('Order creation error:', err);
       const errorMessage = parseErrorMessage(err);
@@ -370,7 +373,7 @@ export default function CreateOrderModal({ isOpen, onClose, onOrderCreated }: Pr
 
   const isProcessing = isPending || isConfirming || isApprovePending || isApproveConfirming;
   const needsApproval = approvalStep === 'needed';
-  const approvalCompleted = approvalStep === 'completed' || approvalStep === 'none';
+  // const approvalCompleted = approvalStep === 'completed' || approvalStep === 'none';
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
