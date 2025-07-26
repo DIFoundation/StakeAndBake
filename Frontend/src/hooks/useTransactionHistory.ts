@@ -69,9 +69,6 @@ export function useTransactionHistory() {
               ]
             }
           ],
-          args: {
-            user: address
-          },
           fromBlock,
           toBlock: 'latest'
         });

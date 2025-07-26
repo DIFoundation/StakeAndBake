@@ -1,7 +1,7 @@
 'use client';
 
 import { useReadContracts } from 'wagmi';
-import { formatEther, formatUnits } from 'viem';
+import { Abi, formatEther, formatUnits } from 'viem';
 import { useState, useEffect } from 'react';
 import { ArrowUp, ArrowDown, Loader2 } from 'lucide-react';
 import { sbFTMarketplaceAddress, sbFTMarketplaceAbi } from "@/contractAddressAndABI"
@@ -57,20 +57,20 @@ export default function OrderBook({ refreshTrigger }: Props) {
   const orderContracts = [
     ...(activeBuyOrderIds?.map((id) => ({
       address: MARKETPLACE_ADDRESS as `0x${string}`,
-      abi: MARKETPLACE_ABI,
+      abi: MARKETPLACE_ABI as Abi,
       functionName: 'getOrder',
       args: [id],
     })) || []),
     ...(activeSellOrderIds?.map((id) => ({
       address: MARKETPLACE_ADDRESS as `0x${string}`,
-      abi: MARKETPLACE_ABI,
+      abi: MARKETPLACE_ABI as Abi,
       functionName: 'getOrder',
       args: [id],
     })) || []),
   ];
 
   const { data: orderDetails, isLoading: orderDetailsLoading, refetch: refetchOrderDetails } = useReadContracts({
-    contracts: orderContracts,
+    contracts: orderContracts, 
     query: {
       enabled: orderContracts.length > 0,
       refetchInterval: 3000, // Refetch every 3 seconds

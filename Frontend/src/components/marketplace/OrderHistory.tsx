@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useReadContracts } from 'wagmi';
-import { formatEther, formatUnits } from 'viem';
+import { Abi, formatEther, formatUnits } from 'viem';
 import { History, Loader2, TrendingUp, TrendingDown, CheckCircle, Clock, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { sbFTMarketplaceAddress, sbFTMarketplaceAbi } from "@/contractAddressAndABI"
 
@@ -69,7 +69,7 @@ export default function OrderHistory({ userAddress, refreshTrigger }: Props) {
   const { data: ordersData, isLoading: ordersLoading, error: ordersError } = useReadContracts({
     contracts: orderIds.map(id => ({
       address: MARKETPLACE_ADDRESS as `0x${string}`,
-      abi: MARKETPLACE_ABI,
+      abi: MARKETPLACE_ABI as Abi,
       functionName: 'getOrder',
       args: [id],
     })),
