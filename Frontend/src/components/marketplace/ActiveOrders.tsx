@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useReadContracts, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
-import { formatEther, formatUnits } from 'viem';
+import { Abi, formatEther, formatUnits } from 'viem';
 import { Clock, X, ShoppingCart, DollarSign, Loader2 } from 'lucide-react';
 import { toast } from 'react-toastify';
 
@@ -80,13 +80,13 @@ export default function ActiveOrders({ userAddress, refreshTrigger, onOrderCance
   // Create contracts for fetching order details
   const orderContracts = orderIds?.map((id) => ({
     address: MARKETPLACE_ADDRESS as `0x${string}`,
-    abi: MARKETPLACE_ABI,
+    abi: MARKETPLACE_ABI as Abi,
     functionName: 'getOrder',
     args: [id],
   })) || [];
 
   const { data: orderDetails, isLoading: orderDetailsLoading, error: orderDetailsError, refetch: refetchOrderDetails } = useReadContracts({
-    contracts: orderContracts,
+    contracts: orderContracts, 
     query: {
       enabled: orderContracts.length > 0,
       refetchInterval: 10000,

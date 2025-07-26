@@ -30,6 +30,7 @@ export default function SimpleStakePage() {
     query: { enabled: !!address },
   });
 
+  const balanceOf: bigint = (tokenBalance as bigint) ?? 0n;
   const allowanceData: bigint = (allowance as bigint) ?? 0n;
   const { writeContract: approveWrite, data: approveHash, isPending: approving } = useWriteContract();
   const { writeContract: stakeWrite, data: stakeHash, isPending: staking } = useWriteContract();
@@ -117,7 +118,7 @@ export default function SimpleStakePage() {
                 <div className="bg-[#1A1A1A] rounded-lg p-4 border border-[#3F3F46]">
                   <p className="text-sm text-gray-400 mb-2">Your Wallet Balance</p>
                   <p className="text-xl font-bold text-white">
-                    {tokenBalance ? formatUnits(tokenBalance, 18) : "0"} XFI
+                    {tokenBalance ? formatUnits(balanceOf, 18) : "0"} XFI
                   </p>
                   {balance && (
                     <p className="text-sm text-gray-500">
