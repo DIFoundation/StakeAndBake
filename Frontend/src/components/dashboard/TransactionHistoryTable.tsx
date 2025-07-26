@@ -5,17 +5,24 @@
 
 type Transaction = {
   id: string;
-  type: "Stake" | "Unstake" | "Claim";
+  type: 'Stake' | 'Unstake' | 'Claim' | 'Compound';
   amount: string;
   timestamp: number;
-  status: "Pending" | "Completed" | "Failed";
+  status: 'Completed';
+  blockNumber: number;
 };
 
 export default function TransactionHistoryTable({
   transactions,
+  isLoading = false,
 }: {
   transactions: Transaction[];
+  isLoading?: boolean;
 }) {
+
+  if (isLoading) {
+    return <div>Loading transactions...</div>
+  }
   
   return (
     <div className="card bg-[#121212]/80 border border-[#3F3F46] text-white rounded-xl p-6 hover:shadow-lg transition mb-12">
