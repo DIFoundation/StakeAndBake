@@ -9,7 +9,7 @@ import { stakingContractAbi, stakingContractAddress, xfiTokenAbi, xfiTokenAddres
 import { Loader2, Clock, Coins, Gift, TrendingUp, Lock, CheckCircle } from "lucide-react";
 
 export default function SimpleStakePage() {
-  const { isConnected, address } = useAccount();
+  const { address } = useAccount();
   const [amount, setAmount] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");

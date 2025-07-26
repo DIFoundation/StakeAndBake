@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useReadContracts } from 'wagmi';
-import { formatUnits } from 'viem';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { TrendingUp, TrendingDown, Clock, BarChart2 } from 'lucide-react';
 import { sbFTMarketplaceAddress, sbFTMarketplaceAbi } from '@/contractAddressAndABI';
@@ -29,7 +28,7 @@ export default function PriceChart({ refreshTrigger }: Props) {
   const [priceChange, setPriceChange] = useState<number>(0);
 
   // Get active orders to calculate current market price
-  const { data: orderData, isLoading: ordersLoading } = useReadContracts({
+  const {  } = useReadContracts({
     contracts: [
       {
         address: sbFTMarketplaceAddress as `0x${string}`,
@@ -51,7 +50,7 @@ export default function PriceChart({ refreshTrigger }: Props) {
   const generateMockData = (range: TimeRange): PricePoint[] => {
     const now = Date.now();
     const basePrice = 2.45; // Base price in USDC
-    let dataPoints: PricePoint[] = [];
+    const dataPoints: PricePoint[] = [];
     
     let intervals: number;
     let timeStep: number;
@@ -156,6 +155,7 @@ export default function PriceChart({ refreshTrigger }: Props) {
     }
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;

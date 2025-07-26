@@ -1,9 +1,9 @@
 'use client';
 
 import { useReadContracts } from 'wagmi';
-import { formatEther, formatUnits } from 'viem';
+import { formatUnits } from 'viem';
 import { TrendingUp, TrendingDown, Volume2, Users } from 'lucide-react';
-import { sbFTMarketplaceAddress, sbFTMarketplaceAbi, sbFTTokenAddress, mockUSDCAddress } from "@/contractAddressAndABI"
+import { sbFTMarketplaceAddress, sbFTMarketplaceAbi } from "@/contractAddressAndABI"
 
 
 const MARKETPLACE_ADDRESS = sbFTMarketplaceAddress; // Your deployed marketplace contract address
@@ -13,7 +13,7 @@ type Props = {
   refreshTrigger: number;
 };
 
-export default function MarketplaceHeader({ refreshTrigger }: Props) {
+export default function MarketplaceHeader({ }: Props) {
   const { data: contractData } = useReadContracts({
     contracts: [
       {
@@ -44,7 +44,7 @@ export default function MarketplaceHeader({ refreshTrigger }: Props) {
 
   const totalVolume = marketStats ? formatUnits(marketStats[0], 6) : '0'; // USDC has 6 decimals
   const totalTrades = marketStats ? marketStats[1].toString() : '0';
-  const feesCollected = marketStats ? formatUnits(marketStats[2], 6) : '0';
+  // const feesCollected = marketStats ? formatUnits(marketStats[2], 6) : '0';
 
   const totalActiveOrders = (activeBuyOrders?.length || 0) + (activeSellOrders?.length || 0);
 

@@ -63,6 +63,7 @@ export default function OrderHistory({ userAddress, refreshTrigger }: Props) {
   });
 
   // Get order details for each order ID
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const orderIds = (userOrderIds?.[0]?.result as bigint[]) || [];
   
   const { data: ordersData, isLoading: ordersLoading, error: ordersError } = useReadContracts({
@@ -92,7 +93,7 @@ export default function OrderHistory({ userAddress, refreshTrigger }: Props) {
 
     if (ordersData && !ordersLoading) {
       const processedHistory: TradeHistoryItem[] = ordersData
-        .map((orderResult, index) => {
+        .map((orderResult) => {
           if (orderResult.result) {
             const order = orderResult.result as Order;
             
@@ -143,7 +144,7 @@ export default function OrderHistory({ userAddress, refreshTrigger }: Props) {
       setHistoryItems(processedHistory);
       setLoading(false);
     }
-  }, [ordersData, ordersLoading, orderIdsError, ordersError]);
+  }, [orderIds, ordersData, ordersLoading, orderIdsError, ordersError]);
 
   // Reset to first page when new data loads
   useEffect(() => {

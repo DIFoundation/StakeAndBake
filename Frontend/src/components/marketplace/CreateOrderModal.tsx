@@ -181,6 +181,7 @@ export default function CreateOrderModal({ isOpen, onClose, onOrderCreated }: Pr
         setApprovalStep('none');
       }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [amount, price, sbftAllowance, usdcAllowance, orderType, approvalStep]);
 
   if (!isOpen) return null;
