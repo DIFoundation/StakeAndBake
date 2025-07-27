@@ -14,19 +14,30 @@ type MarketStatsData = {
   totalVolume: bigint;
   totalTrades: bigint;
   feesCollected: bigint;
+  activeOrdersCount: number;
 };
 
 export default function MarketStats({ refreshTrigger }: Props) {
   const [stats, setStats] = useState<MarketStatsData | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Read market stats from contract
+  // Read market stats from contract - including active orders
   const { data: marketData, isLoading } = useReadContracts({
     contracts: [
       {
         address: sbFTMarketplaceAddress as `0x${string}`,
         abi: sbFTMarketplaceAbi,
         functionName: 'getMarketStats',
+      },
+      {
+        address: sbFTMarketplaceAddress as `0x${string}`,
+        abi: sbFTMarketplaceAbi,
+        functionName: 'getActiveBuyOrders',
+      },
+      {
+        address: sbFTMarketplaceAddress as `0x${string}`,
+        abi: sbFTMarketplaceAbi,
+        functionName: 'getActiveSellOrders',
       },
     ],
     query: {
@@ -47,11 +58,16 @@ export default function MarketStats({ refreshTrigger }: Props) {
     }
 
     const [totalVolume, totalTrades, feesCollected] = marketData[0].result as [bigint, bigint, bigint];
+    const activeBuyOrders = marketData[1]?.result as bigint[] | undefined;
+    const activeSellOrders = marketData[2]?.result as bigint[] | undefined;
+    
+    const activeOrdersCount = (activeBuyOrders?.length || 0) + (activeSellOrders?.length || 0);
     
     setStats({
       totalVolume,
       totalTrades,
       feesCollected,
+      activeOrdersCount,
     });
     setLoading(false);
   }, [marketData, isLoading, refreshTrigger]);
@@ -135,8 +151,8 @@ export default function MarketStats({ refreshTrigger }: Props) {
     },
     {
       title: 'Active Orders',
-      value: '42', // You could add this to your contract or calculate from active orders
-      change: '-2.3%',
+      value: stats ? stats.activeOrdersCount.toString() : '0', // Now using real data!
+      change: '-2.3%', // You could calculate this from historical data
       changeColor: 'text-red-400',
       icon: Activity,
       iconColor: 'text-orange-400 bg-orange-400/10',
