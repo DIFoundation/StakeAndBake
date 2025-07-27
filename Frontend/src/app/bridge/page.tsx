@@ -5,7 +5,7 @@ import { useAccount } from 'wagmi';
 import { 
   Zap, 
   ArrowLeftRight, 
-  Cpu, 
+  // Cpu, 
   Globe, 
   Sparkles, 
   Shield,
@@ -16,10 +16,10 @@ import {
 } from 'lucide-react';
 
 export default function BridgePage() {
-  const { address, isConnected } = useAccount();
-  const [selectedFromChain, setSelectedFromChain] = useState('crossfi');
-  const [selectedToChain, setSelectedToChain] = useState('ethereum');
-  const [amount, setAmount] = useState('');
+  const { isConnected } = useAccount();
+  // const [selectedFromChain, setSelectedFromChain] = useState('crossfi');
+  // const [selectedToChain, setSelectedToChain] = useState('ethereum');
+  // const [amount, setAmount] = useState('');
   const [isAnimating, setIsAnimating] = useState(true);
 
   // Cyberpunk glow animation effect
@@ -184,7 +184,7 @@ export default function BridgePage() {
                   <span className="text-sm font-medium text-purple-300">Bridge Status</span>
                 </div>
                 <p className="text-sm text-gray-300">
-                  The sbFT bridge is currently in development. Once live, you'll be able to transfer tokens across multiple chains and access DeFi protocols everywhere.
+                  The sbFT bridge is currently in development. Once live, you&apos;ll be able to transfer tokens across multiple chains and access DeFi protocols everywhere.
                 </p>
               </div>
             </div>
@@ -237,7 +237,7 @@ export default function BridgePage() {
           <div className="bg-gradient-to-r from-purple-900/50 to-cyan-900/50 border border-purple-500/30 rounded-2xl p-8">
             <h3 className="text-2xl font-bold mb-4">Ready to Bridge the Future?</h3>
             <p className="text-gray-300 mb-6 max-w-2xl mx-auto">
-              Stay tuned for the launch of the sbFT bridge. Soon you'll unlock the full potential of cross-chain DeFi and maximize your yields across multiple networks.
+              Stay tuned for the launch of the sbFT bridge. Soon you&apos;ll unlock the full potential of cross-chain DeFi and maximize your yields across multiple networks.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button className="bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700 px-8 py-3 rounded-xl font-semibold transition">

@@ -5,7 +5,7 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import Image from "next/image";
 import { useAccount } from "wagmi";
 import { usePathname } from "next/navigation";
-import { EllipsisVertical, X, ChevronDown, ArrowLeftRight, TrendingUp, Wallet, ExternalLink } from "lucide-react";
+import { EllipsisVertical, X, ChevronDown, ArrowLeftRight, TrendingUp, ExternalLink } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 
 export default function Navbar() {
@@ -251,7 +251,7 @@ export default function Navbar() {
                 href={item.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-300 hover:underline hover:text-white block text-base font-medium flex items-center gap-2"
+                className="text-gray-300 hover:underline hover:text-white text-base font-medium flex items-center gap-2"
               >
                 {item.label}
                 <ExternalLink className="w-4 h-4" />
@@ -312,7 +312,7 @@ export default function Navbar() {
                   href={item.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-gray-300 hover:underline hover:text-white block text-base font-medium mb-3 flex items-center gap-2"
+                  className="text-gray-300 hover:underline hover:text-white text-base font-medium mb-3 flex items-center gap-2"
                 >
                   {item.label}
                   <ExternalLink className="w-4 h-4" />
