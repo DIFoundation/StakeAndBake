@@ -4039,3 +4039,42 @@ export const sbFTMarketplaceAbi = [
     type: "function",
   },
 ];
+export const VotingAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+export const VotingAbi = [
+	{
+		"inputs": [],
+		"name": "getColor",
+		"outputs": [
+			{
+				"internalType": "uint8",
+				"name": "",
+				"type": "uint8"
+			},
+			{
+				"internalType": "uint8",
+				"name": "",
+				"type": "uint8"
+			},
+			{
+				"internalType": "uint8",
+				"name": "",
+				"type": "uint8"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getName",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+]
