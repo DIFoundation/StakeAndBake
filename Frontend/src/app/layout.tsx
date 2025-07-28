@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Web3Provider } from "@/components/Web3Provider";
 import Navbar from "@/components/Navbar";
+import ToastConfig from '@/components/ToastConfig';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -47,6 +48,7 @@ export default function RootLayout({
             <div className="absolute inset-0 bg-black -z-10 opacity-80"></div>
 
             {children}
+            <ToastConfig />
           </main>
         </Web3Provider>
       </body>
