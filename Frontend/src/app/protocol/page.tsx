@@ -1,11 +1,10 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { Clock, Users, TrendingUp, Plus, Check, X, AlertCircle, Wallet, Vote, Calendar, Target } from 'lucide-react';
-import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt, useBalance } from 'wagmi';
-import { formatEther } from 'viem';
-import { VotingAddress, VotingAbi } from '../../contractAddressAndABI';
-import { parseEther } from 'viem';
-import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { Clock, Users, TrendingUp, Plus, Check, X, AlertCircle, Vote, Calendar, Target } from 'lucide-react';
+import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt, useBalance, useReadContracts } from 'wagmi';
+import { Abi, formatEther } from 'viem';
+import { VotingAddress, VotingAbi } from '@/contractAddressAndABI';
+// import { parseEther } from 'viem';
 
 interface Proposal {
   id: bigint;
@@ -36,28 +35,33 @@ const VotingDashboard = () => {
     abi: VotingAbi,
     functionName: 'getActiveProposals',
   });
+  
 
   // Fetch all proposals
   const [proposals, setProposals] = useState<Proposal[]>([]);
-  useEffect(() => {
-    if (activeProposalIds) {
-      const fetchProposals = async () => {
-        const proposalData = await Promise.all(
-          (activeProposalIds as bigint[]).map(async (id) => {
-            const { data } = await useReadContract({
-              address: VotingAddress,
-              abi: VotingAbi,
-              functionName: 'getProposal',
-              args: [id],
-            });
-            return data as Proposal;
-          })
-        );
-        setProposals(proposalData);
-      };
-      fetchProposals();
-    }
-  }, [activeProposalIds]);
+  const { data: proposalsData } = useReadContracts({
+  contracts: (activeProposalIds as bigint[] || []).map((id) => ({
+    address: VotingAddress as `0x${string}`,
+    abi: VotingAbi as Abi,
+    functionName: 'getProposal',
+    args: [id],
+  })),
+  query: {
+    enabled: !!activeProposalIds && (activeProposalIds as bigint[]).length > 0,
+  },
+});
+
+useEffect(() => {
+  const activeProposalId = (activeProposalIds as bigint[]) || [];
+
+  if (proposalsData) {
+    const parsed = proposalsData.map((p, i) => ({
+  ...(p.result as Proposal),
+  proposalId: activeProposalId[i], // use a different name
+}));
+    setProposals(parsed);
+  }
+}, [proposalsData, activeProposalIds]);
 
   // Fetch user's voting power
   const { data: votingPower } = useReadContract({
