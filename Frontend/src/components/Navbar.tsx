@@ -52,6 +52,7 @@ export default function Navbar() {
         { href: "/dashboard", label: "Dashboard" },
         { href: "/stake", label: "Stake" },
         { href: "/portfolio", label: "Portfolio" },
+        
       ]
     : [
         { href: "/", label: "Home" },
