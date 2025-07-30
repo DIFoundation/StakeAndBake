@@ -1,4 +1,3 @@
-
 export const xfiTokenAddress = "0xF321b818669d56C8f11b3617429cD987c745B0D2";
 export const xfiTokenAbi = [
   {
