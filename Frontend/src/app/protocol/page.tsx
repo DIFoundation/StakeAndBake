@@ -4,7 +4,6 @@ import { Clock, Users, TrendingUp, Plus, Check, X, AlertCircle, Vote, Calendar, 
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt, useBalance, useReadContracts } from 'wagmi';
 import { Abi, formatEther } from 'viem';
 import { VotingAddress, VotingAbi } from '@/contractAddressAndABI';
-// import { parseEther } from 'viem';
 
 interface Proposal {
   id: bigint;
@@ -14,7 +13,7 @@ interface Proposal {
   startTime: bigint;
   endTime: bigint;
   hasVoted: boolean;
-  userVote: boolean | null; // null if not voted
+  userVote: boolean | null;
   yesVotes: bigint;
   noVotes: bigint;
   totalVotingPower: bigint;
@@ -29,41 +28,36 @@ const VotingDashboard = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newProposal, setNewProposal] = useState({ title: '', description: '', type: '0' });
 
-  // Fetch active proposals
-  const { data: activeProposalIds } = useReadContract({
+  const { data: activeProposalIds, refetch: refetchActiveProposals } = useReadContract({
     address: VotingAddress,
     abi: VotingAbi,
     functionName: 'getActiveProposals',
   });
-  
 
-  // Fetch all proposals
   const [proposals, setProposals] = useState<Proposal[]>([]);
-  const { data: proposalsData } = useReadContracts({
-  contracts: (activeProposalIds as bigint[] || []).map((id) => ({
-    address: VotingAddress as `0x${string}`,
-    abi: VotingAbi as Abi,
-    functionName: 'getProposal',
-    args: [id],
-  })),
-  query: {
-    enabled: !!activeProposalIds && (activeProposalIds as bigint[]).length > 0,
-  },
-});
+  const { data: proposalsData, refetch: refetchProposalsData } = useReadContracts({
+    contracts: (activeProposalIds as bigint[] || []).map((id) => ({
+      address: VotingAddress as `0x${string}`,
+      abi: VotingAbi as Abi,
+      functionName: 'getProposal',
+      args: [id],
+    })),
+    query: {
+      enabled: !!activeProposalIds && (activeProposalIds as bigint[]).length > 0,
+    },
+  });
 
-useEffect(() => {
-  const activeProposalId = (activeProposalIds as bigint[]) || [];
+  useEffect(() => {
+    const activeProposalId = (activeProposalIds as bigint[]) || [];
+    if (proposalsData) {
+      const parsed = proposalsData.map((p, i) => ({
+        ...(p.result as Proposal),
+        proposalId: activeProposalId[i],
+      }));
+      setProposals(parsed);
+    }
+  }, [proposalsData, activeProposalIds]);
 
-  if (proposalsData) {
-    const parsed = proposalsData.map((p, i) => ({
-  ...(p.result as Proposal),
-  proposalId: activeProposalId[i], // use a different name
-}));
-    setProposals(parsed);
-  }
-}, [proposalsData, activeProposalIds]);
-
-  // Fetch user's voting power
   const { data: votingPower } = useReadContract({
     address: VotingAddress,
     abi: VotingAbi,
@@ -71,7 +65,6 @@ useEffect(() => {
     args: [address],
   });
 
-  // Handle voting
   const { writeContract, data: voteTxHash } = useWriteContract();
   const { isLoading: isVoting, isSuccess: voteSuccess } = useWaitForTransactionReceipt({ hash: voteTxHash });
 
@@ -84,7 +77,6 @@ useEffect(() => {
     });
   };
 
-  // Handle proposal creation
   const { writeContract: createProposal, data: createTxHash } = useWriteContract();
   const { isLoading: isCreating, isSuccess: createSuccess } = useWaitForTransactionReceipt({ hash: createTxHash });
 
@@ -100,10 +92,15 @@ useEffect(() => {
     setNewProposal({ title: '', description: '', type: '0' });
   };
 
-  // Fetch user balance
+  useEffect(() => {
+    if (createSuccess) {
+      refetchActiveProposals();
+      refetchProposalsData();
+    }
+  }, [createSuccess, refetchActiveProposals, refetchProposalsData]);
+
   const { data: balance } = useBalance({ address });
 
-  // Constants from contract
   const { data: minSbftToPropose } = useReadContract({
     address: VotingAddress,
     abi: VotingAbi,
@@ -137,17 +134,15 @@ useEffect(() => {
     const now = Date.now();
     const diff = Number(endTime) * 1000 - now;
     if (diff <= 0) return 'Ended';
-    
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
     const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    
     if (days > 0) return `${days}d ${hours}h`;
     return `${hours}h`;
   };
 
   const calculateQuorum = (proposal: Proposal) => {
     const totalVotes = Number(proposal.yesVotes) + Number(proposal.noVotes);
-    const quorumRequired = Number(proposal.totalVotingPower) * 0.1; // Assuming 10% quorum from contract
+    const quorumRequired = Number(proposal.totalVotingPower) * 0.1;
     return Math.min((totalVotes / quorumRequired) * 100, 100);
   };
 
@@ -166,62 +161,11 @@ useEffect(() => {
 
   return (
     <div className="min-h-screen relative py-25">
-      {/* Header */}
-      
-
-      {/* Stats Cards */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          {[
-            { label: 'Active Proposals', value: filteredProposals.length, icon: TrendingUp, color: 'from-blue-500 to-cyan-500' },
-            { label: 'Total Voters', value: '1,247', icon: Users, color: 'from-purple-500 to-pink-500' },
-            { label: 'Total Votes Cast', value: '48,392', icon: Target, color: 'from-green-500 to-emerald-500' },
-            { label: 'Participation Rate', value: '67%', icon: Calendar, color: 'from-orange-500 to-red-500' }
-          ].map((stat, idx) => (
-            <div key={idx} className="group relative overflow-hidden rounded-2xl bg-black/40 backdrop-blur-xl border border-white/10 p-6 hover:bg-black/50 transition-all duration-300 transform hover:scale-105">
-              <div className={`absolute inset-0 bg-gradient-to-r ${stat.color} opacity-0 group-hover:opacity-10 transition-opacity duration-300`}></div>
-              <div className="relative">
-                <div className="flex items-center justify-between mb-2">
-                  <stat.icon className="w-8 h-8 text-gray-400 group-hover:text-white transition-colors duration-300" />
-                  <div className={`w-12 h-12 bg-gradient-to-r ${stat.color} rounded-xl opacity-20 group-hover:opacity-30 transition-opacity duration-300`}></div>
-                </div>
-                <p className="text-2xl font-bold text-white mb-1">{stat.value}</p>
-                <p className="text-sm text-gray-400">{stat.label}</p>
-              </div>
-            </div>
-          ))}
-        </div>
 
-        {/* Tab Navigation */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex space-x-1 bg-black/40 backdrop-blur-xl rounded-xl p-1 border border-white/10">
-            {[
-              { id: 'active', label: 'Active', count: filteredProposals.length },
-              { id: 'ended', label: 'Ended', count: proposals.filter(p => p.executed || Date.now() > Number(p.endTime) * 1000).length },
-              { id: 'upcoming', label: 'Upcoming', count: proposals.filter(p => Date.now() < Number(p.startTime) * 1000).length }
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setSelectedTab(tab.id)}
-                className={`px-4 py-2 rounded-lg transition-all duration-200 flex items-center space-x-2 ${
-                  selectedTab === tab.id
-                    ? 'bg-purple-600 text-white shadow-lg'
-                    : 'text-gray-400 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                <span>{tab.label}</span>
-                <span className={`text-xs px-2 py-1 rounded-full ${
-                  selectedTab === tab.id ? 'bg-white/20' : 'bg-white/20'
-                }`}>
-                  {tab.count}
-                </span>
-              </button>
-            ))}
-          </div>
-          
-          {(typeof votingPower === 'bigint' || typeof votingPower === 'number' || typeof votingPower === 'string') &&
-            (typeof minSbftToPropose === 'bigint' || typeof minSbftToPropose === 'number' || typeof minSbftToPropose === 'string') &&
-            Number(formatEther(votingPower as bigint)) >= Number(formatEther(minSbftToPropose as bigint)) ? (
+        {/* Create Proposal Button */}
+        <div className="flex justify-end mb-4">
+          {isConnected && (
             <button 
               onClick={() => setShowCreateModal(true)}
               className="flex items-center space-x-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 px-6 py-3 rounded-xl transition-all duration-200 transform hover:scale-105 shadow-xl text-white"
@@ -229,13 +173,13 @@ useEffect(() => {
               <Plus className="w-5 h-5" />
               <span>Create Proposal</span>
             </button>
-          ) : null}
+          )}
         </div>
 
         {/* Create Proposal Modal */}
         {showCreateModal && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-            <div className="bg-black/80 border border-white/10 rounded-2xl p-8 w-full max-w-md">
+          <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center">
+            <div className="bg-black/90 border border-white/10 rounded-2xl p-8 w-full max-w-md">
               <h2 className="text-2xl font-bold text-white mb-6">Create New Proposal</h2>
               <div className="space-y-4">
                 <div>
@@ -244,7 +188,7 @@ useEffect(() => {
                     type="text"
                     value={newProposal.title}
                     onChange={(e) => setNewProposal({ ...newProposal, title: e.target.value })}
-                    className="w-full mt-1 p-3 bg-gray-800/50 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full mt-1 p-3 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
                     placeholder="Enter proposal title"
                   />
                 </div>
@@ -253,7 +197,7 @@ useEffect(() => {
                   <textarea
                     value={newProposal.description}
                     onChange={(e) => setNewProposal({ ...newProposal, description: e.target.value })}
-                    className="w-full mt-1 p-3 bg-gray-800/50 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full mt-1 p-3 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
                     placeholder="Enter proposal description"
                     rows={4}
                   />
@@ -263,17 +207,17 @@ useEffect(() => {
                   <select
                     value={newProposal.type}
                     onChange={(e) => setNewProposal({ ...newProposal, type: e.target.value })}
-                    className="w-full mt-1 p-3 bg-gray-800/50 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full mt-1 p-3 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
                   >
                     <option value="0">Reward Rate Change</option>
                     <option value="1">Fee Change</option>
                     <option value="2">Parameter Change</option>
                   </select>
                 </div>
-                <div className="flex justify-end space-x-3">
+                <div className="flex justify-end space-x-3 pt-4">
                   <button
                     onClick={() => setShowCreateModal(false)}
-                    className="px-4 py-2 bg-gray-700/50 hover:bg-gray-700 text-gray-300 rounded-lg"
+                    className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg"
                   >
                     Cancel
                   </button>
@@ -441,13 +385,14 @@ useEffect(() => {
                 : `No ${selectedTab} proposals to display.`
               }
             </p>
-            {(typeof votingPower === 'bigint' || typeof votingPower === 'number' || typeof votingPower === 'string') &&
-              (typeof minSbftToPropose === 'bigint' || typeof minSbftToPropose === 'number' || typeof minSbftToPropose === 'string') &&
-              Number(formatEther(votingPower as bigint)) >= Number(formatEther(minSbftToPropose as bigint)) &&
-              selectedTab === 'active' && (
+            {isConnected && (
               <button
-                onClick={() => setShowCreateModal(true)}
+                onClick={() => { 
+                  console.log('Button clicked, showCreateModal:', !showCreateModal); 
+                  setShowCreateModal(true); 
+                }}
                 className="flex items-center space-x-2 bg-purple-600 hover:bg-purple-700 px-6 py-3 rounded-xl transition-all duration-200 mx-auto text-white"
+                disabled={typeof votingPower !== 'bigint' || typeof minSbftToPropose !== 'bigint' || Number(formatEther(votingPower)) < Number(formatEther(minSbftToPropose))}
               >
                 <Plus className="w-5 h-5" />
                 <span>Create First Proposal</span>
