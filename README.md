@@ -53,9 +53,18 @@ Stake and Bake is a decentralized finance (DeFi) application built for the Cross
 ### Screenshots
 *Add screenshots of your application interface here*
 
-```
-[Main Dashboard] [Staking Interface] [sbFT Management]
-```
+#### Main Dashboard
+![Main Dashboard](https://iili.io/F8DwKts.png)
+
+#### Staking Interface
+![Staking Interface](https://iili.io/F8DwJSI.png)
+
+#### Marketplace
+![Marketplace](https://iili.io/F8Dw29t.png)
+
+#### sbFT Management
+![sbFT Management](https://iili.io/F8DwFNn.png)
+
 
 ## Getting Started
 
@@ -82,8 +91,8 @@ Before you begin, ensure you have:
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/stake-and-bake.git
-cd stake-and-bake
+git clone https://github.com/DIFoundation/StakeAndBake.git
+cd StakeAndBake
 
 # Install dependencies
 npm install
@@ -233,7 +242,7 @@ const CONTRACTS = {
 ### Project Structure
 
 ```
-stake-and-bake/
+StakeAndBake/
 ├── components/          # React components
 │   ├── staking/        # Staking-related components
 │   ├── sbft/           # sbFT management components
@@ -371,7 +380,7 @@ We welcome contributions to Stake and Bake! Please follow these steps:
 
 ### Reporting Security Issues
 
-If you discover a security vulnerability, please email us at [security@stakeandbake.com](mailto:security@stakeandbake.com) instead of opening a public issue.
+If you discover a security vulnerability, please email us at [StakeAndBake Admin Email](mailto:adeniranibrahim165@gmail.com) instead of opening a public issue.
 
 ## FAQ
 
@@ -404,7 +413,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ```
 MIT License
 
-Copyright (c) 2024 Stake and Bake Team
+Copyright (c) 2025 Stake and Bake Team
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -413,22 +422,22 @@ in the Software without restriction...
 
 ## Support
 
-### Community
-
+<!-- ### Community -->
+<!-- 
 - 💬 **Discord**: [Join our community](https://discord.gg/stakeandbake)
 - 🐦 **Twitter**: [@StakeAndBake](https://twitter.com/stakeandbake)
-- 📧 **Email**: [support@stakeandbake.com](mailto:support@stakeandbake.com)
+- 📧 **Email**: [support@stakeandbake.com](mailto:support@stakeandbake.com) -->
 
-### Documentation
+<!-- ### Documentation -->
 
-- 📚 **Full Documentation**: [docs.stakeandbake.com](https://docs.stakeandbake.com)
-- 🎥 **Video Tutorials**: [YouTube Channel](https://youtube.com/stakeandbake)
-- 📖 **Developer Guide**: [dev.stakeandbake.com](https://dev.stakeandbake.com)
+<!-- - 📚 **Full Documentation**: [docs.stakeandbake.com](https://docs.stakeandbake.com) -->
+<!-- - 🎥 **Video Tutorials**: [YouTube Channel](https://youtube.com/stakeandbake) -->
+<!-- - 📖 **Developer Guide**: [dev.stakeandbake.com](https://dev.stakeandbake.com) -->
 
 ### Issues & Bug Reports
 
-- 🐛 **Report Bug**: [GitHub Issues](https://github.com/yourusername/stake-and-bake/issues)
-- 💡 **Feature Request**: [GitHub Discussions](https://github.com/yourusername/stake-and-bake/discussions)
+- 🐛 **Report Bug**: [GitHub Issues](https://github.com/DIFoundation/stakeAndBake/issues)
+- 💡 **Feature Request**: [GitHub Discussions](https://github.com/DIFoundation/StakeAndBake/discussions)
 
 ---
 
@@ -436,6 +445,6 @@ in the Software without restriction...
   <strong>🥩 Built with passion for DeFi 🔥</strong>
   <br>
   <a href="https://stakeandbake.vercel.app/">Live App</a> •
-  <a href="https://docs.stakeandbake.com">Documentation</a> •
-  <a href="https://github.com/yourusername/stake-and-bake">GitHub</a>
+  <!-- <a href="https://docs.stakeandbake.com">Documentation</a> • -->
+  <a href="https://github.com/DIFoundation/StakeAndBake">GitHub</a>
 </div>

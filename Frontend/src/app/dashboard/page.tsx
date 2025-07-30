@@ -196,12 +196,14 @@ export default function DashboardPage() {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [refreshKey, setRefreshKey] = useState(0);
 
-  const { transactions: userTransactions, isLoading: transactionsLoading } =
+  const { transactions: userTransactions, isLoading: transactionsLoading, error: transactionsError } =
     useTransactionHistory();
 
   // Function to refresh data after successful transactions
   const handleTransactionSuccess = () => {
     setRefreshKey((prev) => prev + 1);
+    // You might want to trigger a refresh of transaction history here
+    // This would depend on how you want to implement the refresh mechanism
   };
 
   // Read XFI token balance
@@ -373,8 +375,6 @@ export default function DashboardPage() {
         <p className="text-gray-400">
           View your stake, accumulated rewards and claim your earnings
         </p>
-
-   
       </div>
 
       <TotalStakedStats
@@ -395,8 +395,6 @@ export default function DashboardPage() {
       {parseFloat(stakedAmount) > 0 && (
         <div className="bg-[#121212]/80 border border-[#3F3F46] text-white rounded-xl p-6 mb-8">
           <h2 className="text-xl font-bold mb-4">Rewards Actions</h2>
-
-          {/* Debug info for rewards */}
 
           <div className="flex flex-col sm:flex-row gap-4">
             <ClaimRewardsButton
@@ -437,6 +435,8 @@ export default function DashboardPage() {
       <TransactionHistoryTable
         transactions={userTransactions}
         isLoading={transactionsLoading}
+        error={transactionsError}
+        onRefresh={() => window.location.reload()} // Simple refresh for now
       />
     </div>
   );
