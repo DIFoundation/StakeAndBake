@@ -53,16 +53,18 @@ Stake and Bake is a decentralized finance (DeFi) application built for the Cross
 ### Screenshots
 *Add screenshots of your application interface here*
 
-```
-[Main Dashboard]
-![Image Description](https://freeimage.host/i/F8DwKts)
-[Staking Interface]
-![Image Description](https://freeimage.host/i/F8DwJSI)
-[Marketplace]
-![Image Description](https://freeimage.host/i/F8Dw29t)
-[sbFT Management]
-![Image Description](https://freeimage.host/i/F8DwFNn)
-```
+## Main Dashboard
+![Main Dashboard](https://freeimage.host/i/F8DwKts)
+
+## Staking Interface
+![Staking Interface](https://freeimage.host/i/F8DwJSI)
+
+## Marketplace
+![Marketplace](https://freeimage.host/i/F8Dw29t)
+
+## sbFT Management
+![sbFT Management](https://freeimage.host/i/F8DwFNn)
+
 
 ## Getting Started
 
