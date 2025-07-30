@@ -38,7 +38,7 @@ export default function Navbar() {
 
   const tradingItems = [
     { href: "/marketplace", label: "Marketplace", icon: TrendingUp },
-    { href: "/protocol", label: "Voting Protocol", icon: Voting },
+    { href: "/protocol", label: "Voting Protocol", icon: Vote },
     { href: "/bridge", label: "Bridge", icon: ArrowLeftRight, comingSoon: true },
   ];
 
