@@ -5,7 +5,7 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import Image from "next/image";
 import { useAccount } from "wagmi";
 import { usePathname } from "next/navigation";
-import { EllipsisVertical, X, ChevronDown, ArrowLeftRight, TrendingUp, ExternalLink } from "lucide-react";
+import { EllipsisVertical, X, ChevronDown, ArrowLeftRight, TrendingUp, ExternalLink, Vote } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 
 export default function Navbar() {
