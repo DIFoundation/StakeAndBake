@@ -5,7 +5,7 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import Image from "next/image";
 import { useAccount } from "wagmi";
 import { usePathname } from "next/navigation";
-import { EllipsisVertical, X, ChevronDown, ArrowLeftRight, TrendingUp, ExternalLink, Vote } from "lucide-react";
+import { EllipsisVertical, X, ChevronDown, ArrowLeftRight, TrendingUp, ExternalLink, Vote,  } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 
 export default function Navbar() {
@@ -53,6 +53,7 @@ export default function Navbar() {
         { href: "/dashboard", label: "Dashboard" },
         { href: "/stake", label: "Stake" },
         { href: "/portfolio", label: "Portfolio" },
+        { href: "/protocol", label: "Governance", icon: Vote },
         
       ]
     : [
@@ -120,12 +121,13 @@ export default function Navbar() {
                 <Link
                   key={id}
                   href={item.href}
-                  className={`text-sm ${
+                  className={`text-sm flex items-center gap-1.5 ${
                     pathname === item.href
-                      ? "text-white font-medium"
+                      ? "text-purple-400 font-semibold"
                       : "text-gray-300"
-                  } hover:text-white`}
+                  } hover:text-white transition-colors`}
                 >
+                  {item.icon && <item.icon className="w-4 h-4" />}
                   {item.label}
                 </Link>
               )
@@ -262,13 +264,14 @@ export default function Navbar() {
               <Link
                 key={id}
                 href={item.href}
-                className={`block text-base font-medium ${
+                className={`flex items-center gap-2 text-base font-medium ${
                   pathname === item.href
-                    ? "text-white font-semibold underline"
+                    ? "text-purple-400 font-semibold underline"
                     : "text-gray-300"
                 } hover:text-white hover:underline`}
                 onClick={() => setMenuOpen(false)}
               >
+                {item.icon && <item.icon className="w-4 h-4" />}
                 {item.label}
               </Link>
             )
@@ -326,7 +329,7 @@ export default function Navbar() {
                   className={`block text-base font-medium mb-3 ${
                     pathname === item.href
                       ? "text-white font-semibold underline"
-                      : "text-gray-300"
+                    : "text-gray-300"
                   } hover:text-white hover:underline`}
                   onClick={() => setMenuOpen(false)}
                 >
