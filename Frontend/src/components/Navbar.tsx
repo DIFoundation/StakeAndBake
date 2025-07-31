@@ -5,7 +5,7 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import Image from "next/image";
 import { useAccount } from "wagmi";
 import { usePathname } from "next/navigation";
-import { EllipsisVertical, X, ChevronDown, ArrowLeftRight, TrendingUp, ExternalLink, Vote } from "lucide-react";
+import { EllipsisVertical, X, ChevronDown, ArrowLeftRight, TrendingUp, ExternalLink, Vote,  } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 
 export default function Navbar() {
@@ -38,6 +38,7 @@ export default function Navbar() {
 
   const tradingItems = [
     { href: "/marketplace", label: "Marketplace", icon: TrendingUp },
+    { href: "/protocol", label: "Voting Protocol", icon: Vote },
     { href: "/bridge", label: "Bridge", icon: ArrowLeftRight, comingSoon: true },
   ];
 
@@ -53,6 +54,7 @@ export default function Navbar() {
         { href: "/stake", label: "Stake" },
         { href: "/portfolio", label: "Portfolio" },
         { href: "/protocol", label: "Governance", icon: Vote },
+        
       ]
     : [
         { href: "/", label: "Home" },
