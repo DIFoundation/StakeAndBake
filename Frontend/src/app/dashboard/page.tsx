@@ -21,6 +21,7 @@ import {
 } from "@/contractAddressAndABI";
 import { formatEther } from "viem";
 import { useTransactionHistory } from "@/hooks/useTransactionHistory";
+import { toast } from "react-toastify";
 
 // Utility function to format large numbers
 function formatBalance(balance: string | number, decimals: number = 4): string {
@@ -202,6 +203,7 @@ export default function DashboardPage() {
   // Function to refresh data after successful transactions
   const handleTransactionSuccess = () => {
     setRefreshKey((prev) => prev + 1);
+    toast.success("Transaction successful");
     // You might want to trigger a refresh of transaction history here
     // This would depend on how you want to implement the refresh mechanism
   };

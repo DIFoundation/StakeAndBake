@@ -5,11 +5,20 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import Image from "next/image";
 import { useAccount } from "wagmi";
 import { usePathname } from "next/navigation";
-import { EllipsisVertical, X, ChevronDown, ArrowLeftRight, TrendingUp, ExternalLink, Vote,  } from "lucide-react";
+import { EllipsisVertical, X, ChevronDown, ArrowLeftRight, TrendingUp, ExternalLink, Vote, Layers2 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
+import { toast } from "react-toastify";
+
+interface NavItem {
+  href: string;
+  label: string;
+  icon?: React.ComponentType<{ className?: string }>;
+  external?: boolean;
+  comingSoon?: boolean;
+}
 
 export default function Navbar() {
-  const { isConnected } = useAccount();
+  const { isConnected, address } = useAccount();
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const [tradingDropdownOpen, setTradingDropdownOpen] = useState(false);
@@ -36,19 +45,26 @@ export default function Navbar() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const tradingItems = [
+
+  // toast when connectt to wallet
+  useEffect(() => {
+    if (isConnected) {
+      toast.success(`Connected to wallet address: ${address}`);
+    }
+  }, [address, isConnected]);
+
+  const tradingItems: NavItem[] = [
     { href: "/marketplace", label: "Marketplace", icon: TrendingUp },
-    { href: "/protocol", label: "Voting Protocol", icon: Vote },
     { href: "/bridge", label: "Bridge", icon: ArrowLeftRight, comingSoon: true },
   ];
 
-  const resourcesItems = [
+  const resourcesItems: NavItem[] = [
     { href: "https://crossfi.org/", label: "Crossfi", external: true },
     { href: "https://test.xfiscan.com/dashboard", label: "Explorer", external: true },
     { href: "/contact-us", label: "Contact Us" },
   ];
 
-  const navItems = isConnected
+  const navItems: NavItem[] = isConnected
     ? [
         { href: "/dashboard", label: "Dashboard" },
         { href: "/stake", label: "Stake" },
@@ -147,7 +163,6 @@ export default function Navbar() {
                 {tradingDropdownOpen && (
                   <div className="absolute top-full mt-2 right-0 bg-[#121212]/95 border border-gray-700 rounded-lg shadow-xl min-w-[200px] backdrop-blur-md">
                     {tradingItems.map((item, id) => {
-                      const Icon = item.icon;
                       return (
                         <Link
                           key={id}
@@ -157,7 +172,7 @@ export default function Navbar() {
                           } ${id === 0 ? "rounded-t-lg" : ""} ${id === tradingItems.length - 1 ? "rounded-b-lg" : ""}`}
                           onClick={() => setTradingDropdownOpen(false)}
                         >
-                          <Icon className="w-4 h-4" />
+                          <Layers2 className="w-4 h-4" />
                           {item.label}
                           {item.comingSoon && (
                             <span className="ml-auto text-xs bg-purple-600/20 text-purple-300 px-2 py-0.5 rounded-full">
@@ -282,7 +297,6 @@ export default function Navbar() {
             <div className="border-t border-gray-700 pt-4">
               <h4 className="text-sm font-semibold text-gray-400 mb-3">TRADING</h4>
               {tradingItems.map((item, id) => {
-                const Icon = item.icon;
                 return (
                   <Link
                     key={id}
@@ -294,7 +308,7 @@ export default function Navbar() {
                     } hover:text-white`}
                     onClick={() => setMenuOpen(false)}
                   >
-                    <Icon className="w-4 h-4" />
+                    <Layers2 className="w-4 h-4" />
                     {item.label}
                     {item.comingSoon && (
                       <span className="text-xs bg-purple-600/20 text-purple-300 px-2 py-0.5 rounded-full">
