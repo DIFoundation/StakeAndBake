@@ -1,6 +1,12 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt, useBalance, useReadContracts } from 'wagmi';
+import { 
+  useAccount, 
+  useReadContract, 
+  useWriteContract, 
+  useWaitForTransactionReceipt, 
+  // useBalance, 
+  useReadContracts } from 'wagmi';
 import { Abi, formatEther } from 'viem';
 import { VotingAddress, VotingAbi } from '@/contractAddressAndABI';
 import { toast } from 'react-toastify';
@@ -60,15 +66,15 @@ const VotingDashboard = () => {
     abi: VotingAbi,
     functionName: 'getVotingPower',
     args: [address],
-  });
+  }) as { data: bigint | undefined };
 
   const { data: minSbftToPropose } = useReadContract({
     address: VotingAddress,
     abi: VotingAbi,
     functionName: 'MIN_SBFT_TO_PROPOSE',
-  });
+  }) as { data: bigint | undefined };
 
-  const { data: balance } = useBalance({ address });
+  // const { data: balance } = useBalance({ address });
 
   // Contract writes
   const { writeContract, data: voteTxHash, error: voteError } = useWriteContract();
@@ -111,7 +117,7 @@ const VotingDashboard = () => {
 
   useEffect(() => {
     if (voteSuccess) {
-      toast.success('Vote submitted successfully!');
+      toast.success(`Vote submitted successfully with option: ${voteSuccess ? 'Yes' : 'No'}`);
       refetchProposalsData();
     }
   }, [voteSuccess, refetchProposalsData]);
@@ -162,6 +168,19 @@ const VotingDashboard = () => {
     if (!isConnected || !votingPower || !minSbftToPropose) return false;
     return Number(formatEther(votingPower)) >= Number(formatEther(minSbftToPropose));
   };
+
+  if (!isConnected) {
+    return (
+      <div className="max-w-6xl mx-auto py-12 px-4 mt-16">
+        <div className="text-center text-white">
+          <h1 className="text-3xl font-bold mb-4">Governance</h1>
+          <p className="text-gray-400">
+            Please connect your wallet to exercise your power
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen relative py-25">
