@@ -4038,7 +4038,7 @@ export const sbFTMarketplaceAbi = [
     type: "function",
   },
 ];
-export const VotingAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+export const VotingAddress = "0x944611bA3b017E9Ab108Ef6c87308d9411929A12";
 export const VotingAbi = [
     {
       "inputs": [
