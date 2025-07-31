@@ -53,7 +53,7 @@ Stake and Bake is a decentralized finance (DeFi) application built for the Cross
 
 ## Faucet
 ### Custom xfi token faucet for Stake And Bake
-**[cXFI Token Faucet](https://xfi-faucet.vercel.app/)**
+🌐 **[cXFI Token Faucet](https://xfi-faucet.vercel.app/)**
 
 ### Screenshots
 

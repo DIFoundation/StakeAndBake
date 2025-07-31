@@ -39,6 +39,15 @@ export default function SimpleStakePage() {
   const { isSuccess: staked } = useWaitForTransactionReceipt({ hash: stakeHash });
 
   useEffect(() => {
+    if (approving) {
+      toast.info("Approving tokens...");
+    }
+    if (staking) {
+      toast.info("Staking tokens...");
+    }
+  })
+
+  useEffect(() => {
     if (approved) {
       setSuccess("Token approved successfully.");
       toast.success("Token approved successfully.");
