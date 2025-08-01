@@ -263,22 +263,19 @@ export default function Navbar() {
                       <Link
                         key={id}
                         href={item.href}
-                      pathname === item.href ? "text-white bg-gray-800/30" : "text-gray-300"
+                        className={`block px-4 py-3 text-sm hover:bg-gray-800/50 transition ${
+                          pathname === item.href ? "text-white bg-gray-800/30" : "text-gray-300"
                         } ${id === 0 ? "rounded-t-lg" : ""} ${id === resourcesItems.length - 1 ? "rounded-b-lg" : ""}`}
-
                         onClick={() => setResourcesDropdownOpen(false)}
                       >
                         {item.label}
                       </Link>
                     )
-
                   ))}
-
                 </div>
               )}
             </div>
           </div>
-
           {/* Mobile Menu Button */}
           <button
             onClick={() => setMenuOpen((prev) => !prev)}
