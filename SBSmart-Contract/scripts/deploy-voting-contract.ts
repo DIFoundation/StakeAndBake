@@ -3,7 +3,7 @@ import { ethers, network, run } from "hardhat";
 
 async function main() {
 
-  const SBFT_TOKEN_ADDRESS: string = "0x69a0eE537F098C5F84ef5d4c8b4215860F5d5206";
+  const SBFT_TOKEN_ADDRESS: string = "0x9c020d7AF67aB9B77488E9554bC09dDBB2348535";
 
     if (!ethers.utils.isAddress(SBFT_TOKEN_ADDRESS)) {
     console.error("ERROR: Invalid sbFT token contract address.");

@@ -8,6 +8,10 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 interface ISbFTToken {
     function mint(address to, uint256 amount) external;
     function burn(address from, uint256 amount) external;
+    function totalSupply() external view returns (uint256);
+    function balanceOf(address account) external view returns (uint256);
+    function transfer(address to, uint256 amount) external returns (bool);
+    function transferFrom(address from, address to, uint256 amount) external returns (bool);
 }
 
 interface IStakeAndBakeNFT {
@@ -16,8 +20,8 @@ interface IStakeAndBakeNFT {
 
 /**
  * @title StakingContract
- * @dev Simplified staking contract for XFI tokens with 1:1 sbFT conversion
- * @dev Features time-locked staking with rewards and fee collection
+ * @dev Liquid staking contract where sbFT tokens represent shares in a staking pool
+ * @dev Exchange rate appreciates over time as rewards accumulate
  */
 contract StakingContract is Ownable, ReentrancyGuard {
     
@@ -30,42 +34,64 @@ contract StakingContract is Ownable, ReentrancyGuard {
     uint256 public constant BASIS_POINTS = 10000;
     uint256 public constant MIN_STAKE = 1e18; // Minimum 1 XFI
     
-    // Time lock parameters
-    uint256 public stakingLockPeriod = 7 days; // Default 7 days lock
-    uint256 public constant MAX_LOCK_PERIOD = 365 days; // Maximum 1 year
-    uint256 public constant MIN_LOCK_PERIOD = 1 days; // Minimum 1 day
+    // Unstaking parameters
+    uint256 public unstakingDelay = 7 days; // Protocol-level unstaking delay
+    uint256 public constant MAX_UNSTAKING_DELAY = 30 days;
+    uint256 public constant MIN_UNSTAKING_DELAY = 1 days;
     
-    // Reward parameters
+    // Exchange rate parameters
     uint256 public annualRewardRate = 800; // 8% APY (800 basis points)
     uint256 public constant SECONDS_PER_YEAR = 365 * 24 * 60 * 60;
+    uint256 public lastRewardUpdate;
     
-    // User staking info
-    struct StakeInfo {
-        uint256 stakedAmount;      // Amount of XFI staked
-        uint256 sbftBalance;       // Amount of sbFT tokens received (1:1 with staked amount)
-        uint256 lastRewardTime;    // Last time rewards were calculated
-        uint256 pendingRewards;    // Unclaimed XFI rewards
-        uint256 unlockTime;        // When this stake can be unstaked
-        uint256 lockPeriod;        // Lock period for this stake
+    // Pool state
+    uint256 public totalXFIInPool; // Total XFI backing sbFT tokens
+    uint256 public totalPendingUnstakes; // XFI reserved for pending unstakes
+    
+    // Unstaking queue
+    struct UnstakeRequest {
+        address user;
+        uint256 xfiAmount;
+        uint256 unlockTime;
+        bool processed;
     }
     
-    mapping(address => StakeInfo) public stakes;
+    mapping(uint256 => UnstakeRequest) public unstakeRequests;
+    mapping(address => uint256[]) public userUnstakeRequests;
+    uint256 public unstakeRequestCount;
     
-    // Total amounts
-    uint256 public totalStaked;
+    // Legacy support - keep for backwards compatibility but deprecate
+    struct StakeInfo {
+        uint256 stakedAmount;
+        uint256 sbftBalance;
+        uint256 lastRewardTime;
+        uint256 pendingRewards;
+        uint256 unlockTime;
+        uint256 lockPeriod;
+    }
+    mapping(address => StakeInfo) public stakes; // Deprecated
+    
+    // Stats
+    uint256 public totalStaked; // Now represents totalXFIInPool
     uint256 public totalFeesCollected;
     uint256 public minStake = MIN_STAKE;
     
-    // Events for subgraph
-    event Staked(address indexed user, uint256 xfiAmount, uint256 sbftAmount, uint256 fee, uint256 unlockTime);
+    // Events
+    event Staked(address indexed user, uint256 xfiAmount, uint256 sbftAmount, uint256 fee, uint256 exchangeRate);
+    event UnstakeRequested(address indexed user, uint256 requestId, uint256 sbftAmount, uint256 xfiAmount, uint256 unlockTime);
+    event UnstakeProcessed(address indexed user, uint256 requestId, uint256 xfiAmount);
+    event UnstakeRequestCancelled(address indexed user, uint256 requestId, uint256 sbftAmount);
+    event RewardsAccrued(uint256 rewardAmount, uint256 newExchangeRate);
+    event ExchangeRateUpdated(uint256 newRate);
+    event UnstakingDelayUpdated(uint256 newDelay);
+    
+    // Legacy events - keep for backwards compatibility
     event Unstaked(address indexed user, uint256 xfiAmount, uint256 sbftAmount);
     event RewardsClaimed(address indexed user, uint256 amount);
     event RewardsCompounded(address indexed user, uint256 amount);
     event FeeCollected(uint256 amount);
     event RewardRateUpdated(uint256 newRate);
     event MinStakeUpdated(uint256 newMinStake);
-    event LockPeriodUpdated(uint256 newLockPeriod);
-    event UnstakeAttemptedEarly(address indexed user, uint256 unlockTime, uint256 currentTime);
     
     constructor(
         address _xfiToken,
@@ -76,11 +102,11 @@ contract StakingContract is Ownable, ReentrancyGuard {
         
         xfiToken = IERC20(_xfiToken);
         sbftToken = ISbFTToken(_sbftToken);
+        lastRewardUpdate = block.timestamp;
     }
     
     /**
      * @dev Set Master NFT contract address
-     * @param _masterNFT Address of the Master NFT contract
      */
     function setMasterNFT(address _masterNFT) external onlyOwner {
         require(_masterNFT != address(0), "Invalid Master NFT address");
@@ -88,72 +114,61 @@ contract StakingContract is Ownable, ReentrancyGuard {
     }
     
     /**
-     * @dev Update staking lock period
-     * @param _newLockPeriod New lock period in seconds
+     * @dev Update unstaking delay
      */
-    function setStakingLockPeriod(uint256 _newLockPeriod) external onlyOwner {
-        require(_newLockPeriod >= MIN_LOCK_PERIOD, "Lock period too short");
-        require(_newLockPeriod <= MAX_LOCK_PERIOD, "Lock period too long");
-        stakingLockPeriod = _newLockPeriod;
-        emit LockPeriodUpdated(_newLockPeriod);
+    function setUnstakingDelay(uint256 _newDelay) external onlyOwner {
+        require(_newDelay >= MIN_UNSTAKING_DELAY, "Delay too short");
+        require(_newDelay <= MAX_UNSTAKING_DELAY, "Delay too long");
+        unstakingDelay = _newDelay;
+        emit UnstakingDelayUpdated(_newDelay);
     }
     
     /**
-     * @dev Check if user can unstake (lock period expired)
-     * @param user Address of the user
-     * @return canUnstake Whether user can unstake
-     * @return timeRemaining Time remaining until unlock (0 if can unstake)
+     * @dev Get current exchange rate (XFI per sbFT)
+     * @return Exchange rate scaled by 1e18
      */
-    function canUnstake(address user) external view returns (bool canUnstake, uint256 timeRemaining) {
-        StakeInfo memory userStake = stakes[user];
-        
-        if (userStake.stakedAmount == 0) {
-            return (false, 0);
+    function getExchangeRate() public view returns (uint256) {
+        uint256 sbftSupply = sbftToken.totalSupply();
+        if (sbftSupply == 0) {
+            return 1e18; // 1:1 initially
         }
         
-        if (block.timestamp >= userStake.unlockTime) {
-            return (true, 0);
-        } else {
-            return (false, userStake.unlockTime - block.timestamp);
-        }
+        // Calculate time-based rewards that would be accrued
+        uint256 timeElapsed = block.timestamp - lastRewardUpdate;
+        uint256 pendingRewards = (totalXFIInPool * annualRewardRate * timeElapsed) / 
+                                (BASIS_POINTS * SECONDS_PER_YEAR);
+        
+        uint256 totalValue = totalXFIInPool + pendingRewards;
+        return (totalValue * 1e18) / sbftSupply;
     }
     
     /**
-     * @dev Stake XFI tokens to receive sbFT tokens with time lock (1:1 conversion)
-     * @param amount Amount of XFI tokens to stake
+     * @dev Stake XFI tokens to receive sbFT tokens at current exchange rate
      */
     function stake(uint256 amount) external nonReentrant {
         require(amount >= minStake, "Amount below minimum stake");
         require(xfiToken.balanceOf(msg.sender) >= amount, "Insufficient XFI balance");
         
-        // Update rewards before changing stake
-        _updateRewards(msg.sender);
+        // Update rewards before staking
+        _accrueRewards();
         
         // Calculate fee and net amount
         uint256 fee = (amount * STAKING_FEE) / BASIS_POINTS;
         uint256 netAmount = amount - fee;
         
-        // 1:1 conversion - sbFT amount equals net staked amount
-        uint256 sbftAmount = netAmount;
-        
-        // Set unlock time
-        uint256 unlockTime = block.timestamp + stakingLockPeriod;
+        // Calculate sbFT amount based on current exchange rate
+        uint256 exchangeRate = getExchangeRate();
+        uint256 sbftAmount = (netAmount * 1e18) / exchangeRate;
         
         // Transfer XFI from user
         require(xfiToken.transferFrom(msg.sender, address(this), amount), "Transfer failed");
         
-        // Update user stake info
-        stakes[msg.sender].stakedAmount += netAmount;
-        stakes[msg.sender].sbftBalance += sbftAmount;
-        stakes[msg.sender].lastRewardTime = block.timestamp;
-        stakes[msg.sender].unlockTime = unlockTime;
-        stakes[msg.sender].lockPeriod = stakingLockPeriod;
-        
-        // Update totals
-        totalStaked += netAmount;
+        // Update pool state
+        totalXFIInPool += netAmount;
+        totalStaked = totalXFIInPool; // For backwards compatibility
         totalFeesCollected += fee;
         
-        // Mint sbFT tokens to user (1:1 with net staked amount)
+        // Mint sbFT tokens to user
         sbftToken.mint(msg.sender, sbftAmount);
         
         // Send fee to Master NFT contract (if set)
@@ -162,80 +177,128 @@ contract StakingContract is Ownable, ReentrancyGuard {
             masterNFT.distributeFees(fee);
         }
         
-        emit Staked(msg.sender, amount, sbftAmount, fee, unlockTime);
+        emit Staked(msg.sender, amount, sbftAmount, fee, exchangeRate);
         emit FeeCollected(fee);
     }
     
     /**
-     * @dev Unstake XFI tokens by burning sbFT tokens (only after lock period)
-     * @param sbftAmount Amount of sbFT tokens to burn (1:1 conversion to XFI)
+     * @dev Request unstaking - creates unstake request with delay
      */
-    function unstake(uint256 sbftAmount) external nonReentrant {
+    function requestUnstake(uint256 sbftAmount) external nonReentrant {
         require(sbftAmount > 0, "Amount must be greater than 0");
-        require(stakes[msg.sender].sbftBalance >= sbftAmount, "Insufficient sbFT balance");
+        require(sbftToken.balanceOf(msg.sender) >= sbftAmount, "Insufficient sbFT balance");
         
-        // Check if lock period has expired
-        if (block.timestamp < stakes[msg.sender].unlockTime) {
-            emit UnstakeAttemptedEarly(msg.sender, stakes[msg.sender].unlockTime, block.timestamp);
-            revert("Tokens are still locked");
-        }
+        // Update rewards before unstaking
+        _accrueRewards();
         
-        // Update rewards before changing stake
-        _updateRewards(msg.sender);
+        // Calculate XFI amount based on current exchange rate
+        uint256 exchangeRate = getExchangeRate();
+        uint256 xfiAmount = (sbftAmount * exchangeRate) / 1e18;
         
-        // 1:1 conversion - XFI amount equals sbFT amount
-        uint256 xfiAmount = sbftAmount;
-        require(xfiAmount <= stakes[msg.sender].stakedAmount, "Invalid unstake amount");
-        
-        // Update user stake info
-        stakes[msg.sender].stakedAmount -= xfiAmount;
-        stakes[msg.sender].sbftBalance -= sbftAmount;
-        
-        // Update totals
-        totalStaked -= xfiAmount;
-        
-        // Burn sbFT tokens
+        // Burn sbFT tokens immediately
         sbftToken.burn(msg.sender, sbftAmount);
         
-        // Transfer XFI back to user
-        require(xfiToken.transfer(msg.sender, xfiAmount), "Transfer failed");
+        // Create unstake request
+        uint256 requestId = unstakeRequestCount++;
+        uint256 unlockTime = block.timestamp + unstakingDelay;
         
-        emit Unstaked(msg.sender, xfiAmount, sbftAmount);
+        unstakeRequests[requestId] = UnstakeRequest({
+            user: msg.sender,
+            xfiAmount: xfiAmount,
+            unlockTime: unlockTime,
+            processed: false
+        });
+        
+        userUnstakeRequests[msg.sender].push(requestId);
+        
+        // Update pool state
+        totalXFIInPool -= xfiAmount;
+        totalPendingUnstakes += xfiAmount;
+        totalStaked = totalXFIInPool; // For backwards compatibility
+        
+        emit UnstakeRequested(msg.sender, requestId, sbftAmount, xfiAmount, unlockTime);
     }
     
     /**
-     * @dev Emergency unstake with penalty (for testing purposes)
-     * @param sbftAmount Amount of sbFT tokens to burn
-     * @param penaltyRate Penalty rate in basis points (e.g., 1000 = 10%)
+     * @dev Process unstake request after delay period
+     */
+    function processUnstake(uint256 requestId) external nonReentrant {
+        require(requestId < unstakeRequestCount, "Invalid request ID");
+        
+        UnstakeRequest storage request = unstakeRequests[requestId];
+        require(request.user == msg.sender, "Not your request");
+        require(!request.processed, "Already processed");
+        require(block.timestamp >= request.unlockTime, "Still locked");
+        
+        request.processed = true;
+        totalPendingUnstakes -= request.xfiAmount;
+        
+        // Transfer XFI to user
+        require(xfiToken.transfer(msg.sender, request.xfiAmount), "Transfer failed");
+        
+        emit UnstakeProcessed(msg.sender, requestId, request.xfiAmount);
+        emit Unstaked(msg.sender, request.xfiAmount, 0); // Legacy event
+    }
+    
+    /**
+     * @dev Cancel unstake request and get sbFT tokens back
+     */
+    function cancelUnstakeRequest(uint256 requestId) external nonReentrant {
+        require(requestId < unstakeRequestCount, "Invalid request ID");
+        
+        UnstakeRequest storage request = unstakeRequests[requestId];
+        require(request.user == msg.sender, "Not your request");
+        require(!request.processed, "Already processed");
+        
+        // Update rewards before cancelling
+        _accrueRewards();
+        
+        // Calculate sbFT amount to return based on current exchange rate
+        uint256 exchangeRate = getExchangeRate();
+        uint256 sbftAmount = (request.xfiAmount * 1e18) / exchangeRate;
+        
+        // Mark as processed
+        request.processed = true;
+        
+        // Update pool state
+        totalXFIInPool += request.xfiAmount;
+        totalPendingUnstakes -= request.xfiAmount;
+        totalStaked = totalXFIInPool; // For backwards compatibility
+        
+        // Mint sbFT tokens back to user
+        sbftToken.mint(msg.sender, sbftAmount);
+        
+        emit UnstakeRequestCancelled(msg.sender, requestId, sbftAmount);
+    }
+    
+    /**
+     * @dev Instant unstake with penalty (for emergency situations)
      */
     function emergencyUnstake(uint256 sbftAmount, uint256 penaltyRate) external nonReentrant {
         require(sbftAmount > 0, "Amount must be greater than 0");
-        require(stakes[msg.sender].sbftBalance >= sbftAmount, "Insufficient sbFT balance");
+        require(sbftToken.balanceOf(msg.sender) >= sbftAmount, "Insufficient sbFT balance");
         require(penaltyRate <= 5000, "Penalty cannot exceed 50%");
         
-        // Update rewards before changing stake
-        _updateRewards(msg.sender);
+        // Update rewards before unstaking
+        _accrueRewards();
         
-        // 1:1 conversion - XFI amount equals sbFT amount
-        uint256 xfiAmount = sbftAmount;
-        require(xfiAmount <= stakes[msg.sender].stakedAmount, "Invalid unstake amount");
+        // Calculate XFI amount based on current exchange rate
+        uint256 exchangeRate = getExchangeRate();
+        uint256 xfiAmount = (sbftAmount * exchangeRate) / 1e18;
         
         // Apply penalty
         uint256 penalty = (xfiAmount * penaltyRate) / BASIS_POINTS;
         uint256 netAmount = xfiAmount - penalty;
         
-        // Update user stake info
-        stakes[msg.sender].stakedAmount -= xfiAmount;
-        stakes[msg.sender].sbftBalance -= sbftAmount;
-        
-        // Update totals
-        totalStaked -= xfiAmount;
-        totalFeesCollected += penalty;
-        
         // Burn sbFT tokens
         sbftToken.burn(msg.sender, sbftAmount);
         
-        // Transfer net amount back to user
+        // Update pool state
+        totalXFIInPool -= xfiAmount;
+        totalStaked = totalXFIInPool; // For backwards compatibility
+        totalFeesCollected += penalty;
+        
+        // Transfer net amount to user
         require(xfiToken.transfer(msg.sender, netAmount), "Transfer failed");
         
         // Send penalty to Master NFT contract (if set)
@@ -249,140 +312,116 @@ contract StakingContract is Ownable, ReentrancyGuard {
     }
     
     /**
-     * @dev Update minimum stake amount (only owner)
-     * @param _newMinStake New minimum stake amount
+     * @dev Accrue rewards to the pool (increases exchange rate)
      */
+    function _accrueRewards() internal {
+        if (totalXFIInPool == 0) {
+            lastRewardUpdate = block.timestamp;
+            return;
+        }
+        
+        uint256 timeElapsed = block.timestamp - lastRewardUpdate;
+        if (timeElapsed == 0) return;
+        
+        uint256 rewardAmount = (totalXFIInPool * annualRewardRate * timeElapsed) / 
+                              (BASIS_POINTS * SECONDS_PER_YEAR);
+        
+        if (rewardAmount > 0) {
+            totalXFIInPool += rewardAmount;
+            totalStaked = totalXFIInPool; // For backwards compatibility
+            
+            emit RewardsAccrued(rewardAmount, getExchangeRate());
+        }
+        
+        lastRewardUpdate = block.timestamp;
+    }
+    
+    /**
+     * @dev Manual reward accrual (can be called by anyone)
+     */
+    function accrueRewards() external {
+        _accrueRewards();
+    }
+    
+    /**
+     * @dev Get user's unstake requests
+     */
+    function getUserUnstakeRequests(address user) external view returns (uint256[] memory) {
+        return userUnstakeRequests[user];
+    }
+    
+    /**
+     * @dev Check if unstake request can be processed
+     */
+    function canProcessUnstake(uint256 requestId) external view returns (bool, uint256) {
+        if (requestId >= unstakeRequestCount) return (false, 0);
+        
+        UnstakeRequest memory request = unstakeRequests[requestId];
+        if (request.processed) return (false, 0);
+        
+        if (block.timestamp >= request.unlockTime) {
+            return (true, 0);
+        } else {
+            return (false, request.unlockTime - block.timestamp);
+        }
+    }
+    
+    /**
+     * @dev Get available XFI for unstaking
+     */
+    function getAvailableXFI() external view returns (uint256) {
+        uint256 totalBalance = xfiToken.balanceOf(address(this));
+        return totalBalance > totalPendingUnstakes ? totalBalance - totalPendingUnstakes : 0;
+    }
+    
+    // Legacy functions for backwards compatibility
+    function updateRewardRate(uint256 newRate) external onlyOwner {
+        require(newRate <= 2000, "Rate cannot exceed 20%");
+        annualRewardRate = newRate;
+        emit RewardRateUpdated(newRate);
+    }
+    
     function setMinStake(uint256 _newMinStake) external onlyOwner {
         require(_newMinStake > 0, "Min stake must be greater than 0");
         minStake = _newMinStake;
         emit MinStakeUpdated(_newMinStake);
     }
     
-    /**
-     * @dev Claim accumulated staking rewards
-     */
-    function claimRewards() external nonReentrant {
-        _updateRewards(msg.sender);
-        
-        uint256 rewards = stakes[msg.sender].pendingRewards;
-        require(rewards > 0, "No rewards to claim");
-        
-        stakes[msg.sender].pendingRewards = 0;
-        
-        // Transfer rewards to user
-        require(xfiToken.transfer(msg.sender, rewards), "Reward transfer failed");
-        
-        emit RewardsClaimed(msg.sender, rewards);
-    }
-    
-    /**
-     * @dev Compound rewards by staking them (extends lock period)
-     */
-    function compoundRewards() external nonReentrant {
-        _updateRewards(msg.sender);
-        
-        uint256 rewards = stakes[msg.sender].pendingRewards;
-        require(rewards > 0, "No rewards to compound");
-        
-        stakes[msg.sender].pendingRewards = 0;
-        
-        // 1:1 conversion for compounded rewards
-        uint256 sbftAmount = rewards;
-        
-        stakes[msg.sender].stakedAmount += rewards;
-        stakes[msg.sender].sbftBalance += sbftAmount;
-        totalStaked += rewards;
-        
-        // Extend lock period when compounding
-        stakes[msg.sender].unlockTime = block.timestamp + stakingLockPeriod;
-        
-        // Mint additional sbFT tokens
-        sbftToken.mint(msg.sender, sbftAmount);
-        
-        emit RewardsCompounded(msg.sender, rewards);
-    }
-    
-    /**
-     * @dev Update reward rate (only owner)
-     * @param newRate New annual reward rate in basis points
-     */
-    function updateRewardRate(uint256 newRate) external onlyOwner {
-        require(newRate <= 2000, "Rate cannot exceed 20%"); // Max 20% APY
-        annualRewardRate = newRate;
-        emit RewardRateUpdated(newRate);
-    }
-    
-    /**
-     * @dev Get user's pending rewards
-     * @param user Address of the user
-     * @return Pending rewards in XFI
-     */
-    function getPendingRewards(address user) external view returns (uint256) {
-        StakeInfo memory userStake = stakes[user];
-        if (userStake.stakedAmount == 0) return userStake.pendingRewards;
-        
-        uint256 timeDiff = block.timestamp - userStake.lastRewardTime;
-        uint256 newRewards = (userStake.stakedAmount * annualRewardRate * timeDiff) / 
-                           (BASIS_POINTS * SECONDS_PER_YEAR);
-        
-        return userStake.pendingRewards + newRewards;
-    }
-    
-    /**
-     * @dev Get user's stake information
-     * @param user Address of the user
-     * @return StakeInfo struct with user's staking details
-     */
-    function getUserStake(address user) external view returns (StakeInfo memory) {
-        return stakes[user];
-    }
-    
-    /**
-     * @dev Get current minimum stake amount
-     * @return Current minimum stake in wei
-     */
     function getMinStake() external view returns (uint256) {
         return minStake;
     }
     
-    /**
-     * @dev Get current lock period
-     * @return Current staking lock period in seconds
-     */
     function getCurrentLockPeriod() external view returns (uint256) {
-        return stakingLockPeriod;
+        return unstakingDelay; // Now represents unstaking delay
     }
     
-    /**
-     * @dev Get contract statistics
-     * @return totalStaked_ Total amount of XFI staked
-     * @return totalFeesCollected_ Total fees collected
-     * @return currentRewardRate Current annual reward rate in basis points
-     */
-    function getContractStats() external view returns (
-        uint256 totalStaked_,
-        uint256 totalFeesCollected_,
-        uint256 currentRewardRate
-    ) {
-        return (totalStaked, totalFeesCollected, annualRewardRate);
+    function getContractStats() external view returns (uint256, uint256, uint256) {
+        return (totalXFIInPool, totalFeesCollected, annualRewardRate);
     }
     
-    /**
-     * @dev Internal function to update user rewards
-     * @param user Address of the user
-     */
-    function _updateRewards(address user) internal {
-        StakeInfo storage userStake = stakes[user];
-        
-        if (userStake.stakedAmount > 0) {
-            uint256 timeDiff = block.timestamp - userStake.lastRewardTime;
-            uint256 newRewards = (userStake.stakedAmount * annualRewardRate * timeDiff) / 
-                               (BASIS_POINTS * SECONDS_PER_YEAR);
-            
-            userStake.pendingRewards += newRewards;
-        }
-        
-        userStake.lastRewardTime = block.timestamp;
+    // Deprecated functions - return empty/default values
+    function canUnstake(address) external pure returns (bool, uint256) {
+        return (false, 0); // Deprecated - use requestUnstake instead
+    }
+    
+    function getPendingRewards(address) external pure returns (uint256) {
+        return 0; // Deprecated - rewards now automatic via exchange rate
+    }
+    
+    function getUserStake(address) external pure returns (StakeInfo memory) {
+        return StakeInfo(0, 0, 0, 0, 0, 0); // Deprecated
+    }
+    
+    function claimRewards() external pure {
+        revert("Deprecated - rewards are automatic via exchange rate appreciation");
+    }
+    
+    function compoundRewards() external pure {
+        revert("Deprecated - rewards are automatically compounded");
+    }
+    
+    function unstake(uint256) external pure {
+        revert("Deprecated - use requestUnstake() instead");
     }
     
     /**
