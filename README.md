@@ -77,8 +77,9 @@ Your sbFT tokens continuously increase in XFI value without any manual intervent
 🌐 **[Visit Stake and Bake](https://stakeandbake.vercel.app/)**
 
 ## Faucet
-### Custom XFI token faucet for Stake And Bake
-**[cXFI Token Faucet](https://xfi-faucet.vercel.app/)**
+
+### Custom xfi token faucet for Stake And Bake
+🌐 **[cXFI Token Faucet](https://xfi-faucet.vercel.app/)**
 
 ### Screenshots
 
