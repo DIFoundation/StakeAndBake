@@ -5,11 +5,21 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import Image from "next/image";
 import { useAccount } from "wagmi";
 import { usePathname } from "next/navigation";
-import { EllipsisVertical, X, ChevronDown, ArrowLeftRight, TrendingUp, ExternalLink, Vote,  } from "lucide-react";
+
+import { EllipsisVertical, X, ChevronDown, ArrowLeftRight, TrendingUp, ExternalLink, Vote, Layers2 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
+import { toast } from "react-toastify";
+
+interface NavItem {
+  href: string;
+  label: string;
+  icon?: React.ComponentType<{ className?: string }>;
+  external?: boolean;
+  comingSoon?: boolean;
+}
 
 export default function Navbar() {
-  const { isConnected } = useAccount();
+  const { isConnected, address } = useAccount();
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const [tradingDropdownOpen, setTradingDropdownOpen] = useState(false);
@@ -24,36 +34,82 @@ export default function Navbar() {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
         setMenuOpen(false);
       }
+// <<<<<<< aaaa
+//       if (
+//         tradingDropdownRef.current &&
+//         !tradingDropdownRef.current.contains(e.target as Node)
+//       ) {
+//         setTradingDropdownOpen(false);
+//       }
+//       if (
+//         resourcesDropdownRef.current &&
+//         !resourcesDropdownRef.current.contains(e.target as Node)
+//       ) {
+// =======
       if (tradingDropdownRef.current && !tradingDropdownRef.current.contains(e.target as Node)) {
         setTradingDropdownOpen(false);
       }
       if (resourcesDropdownRef.current && !resourcesDropdownRef.current.contains(e.target as Node)) {
+// >>>>>>> main
         setResourcesDropdownOpen(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const tradingItems = [
+// <<<<<<< aaaa
+//   const tradingItems = [
+//     { href: "/marketplace", label: "Marketplace", icon: TrendingUp },
+//     {
+//       href: "/bridge",
+//       label: "Bridge",
+//       icon: ArrowLeftRight,
+//       comingSoon: true,
+//     },
+//   ];
+
+//   const resourcesItems = [
+//     { href: "https://crossfi.org/", label: "Crossfi", external: true },
+//     {
+//       href: "https://test.xfiscan.com/dashboard",
+//       label: "Explorer",
+//       external: true,
+//     },
+//     { href: "/contact-us", label: "Contact Us" },
+//   ];
+
+//   const navItems = isConnected
+// =======
+
+  // toast when connectt to wallet
+  useEffect(() => {
+    if (isConnected) {
+      toast.success(`Connected to wallet address: ${address}`);
+    }
+  }, [address, isConnected]);
+
+  const tradingItems: NavItem[] = [
     { href: "/marketplace", label: "Marketplace", icon: TrendingUp },
-    { href: "/protocol", label: "Voting Protocol", icon: Vote },
     { href: "/bridge", label: "Bridge", icon: ArrowLeftRight, comingSoon: true },
   ];
 
-  const resourcesItems = [
+  const resourcesItems: NavItem[] = [
     { href: "https://crossfi.org/", label: "Crossfi", external: true },
     { href: "https://test.xfiscan.com/dashboard", label: "Explorer", external: true },
     { href: "/contact-us", label: "Contact Us" },
   ];
 
-  const navItems = isConnected
+  const navItems: NavItem[] = isConnected
+// >>>>>>> main
     ? [
         { href: "/dashboard", label: "Dashboard" },
         { href: "/stake", label: "Stake" },
         { href: "/portfolio", label: "Portfolio" },
+
         { href: "/protocol", label: "Governance", icon: Vote },
+
         
       ]
     : [
@@ -62,8 +118,6 @@ export default function Navbar() {
         { href: "/how-it-works", label: "How It Works" },
         { href: "https://github.com/DIFoundation/StakeAndBake/blob/main/README.md", label: "Docs", external: true },
       ];
-
-     
 
   // Close menu on outside click
   useEffect(() => {
@@ -121,7 +175,9 @@ export default function Navbar() {
                 <Link
                   key={id}
                   href={item.href}
+
                   className={`text-sm flex items-center gap-1.5 ${
+
                     pathname === item.href
                       ? "text-purple-400 font-semibold"
                       : "text-gray-300"
@@ -143,21 +199,23 @@ export default function Navbar() {
                   Trading
                   <ChevronDown className="w-4 h-4" />
                 </button>
+
                 
                 {tradingDropdownOpen && (
                   <div className="absolute top-full mt-2 right-0 bg-[#121212]/95 border border-gray-700 rounded-lg shadow-xl min-w-[200px] backdrop-blur-md">
                     {tradingItems.map((item, id) => {
-                      const Icon = item.icon;
                       return (
                         <Link
                           key={id}
                           href={item.href}
                           className={`flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-800/50 transition ${
+
                             pathname === item.href ? "text-white bg-gray-800/30" : "text-gray-300"
                           } ${id === 0 ? "rounded-t-lg" : ""} ${id === tradingItems.length - 1 ? "rounded-b-lg" : ""}`}
                           onClick={() => setTradingDropdownOpen(false)}
                         >
-                          <Icon className="w-4 h-4" />
+                          <Layers2 className="w-4 h-4" />
+
                           {item.label}
                           {item.comingSoon && (
                             <span className="ml-auto text-xs bg-purple-600/20 text-purple-300 px-2 py-0.5 rounded-full">
@@ -181,17 +239,21 @@ export default function Navbar() {
                 Resources
                 <ChevronDown className="w-4 h-4" />
               </button>
+
               
               {resourcesDropdownOpen && (
                 <div className="absolute top-full mt-2 right-0 bg-[#121212]/95 border border-gray-700 rounded-lg shadow-xl min-w-[160px] backdrop-blur-md">
                   {resourcesItems.map((item, id) => (
+
                     item.external ? (
                       <a
                         key={id}
                         href={item.href}
                         target="_blank"
                         rel="noopener noreferrer"
+
                         className={`flex items-center gap-2 px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-gray-800/50 transition ${id === 0 ? "rounded-t-lg" : ""} ${id === resourcesItems.length - 1 ? "rounded-b-lg" : ""}`}
+
                         onClick={() => setResourcesDropdownOpen(false)}
                       >
                         {item.label}
@@ -214,7 +276,6 @@ export default function Navbar() {
               )}
             </div>
           </div>
-
           {/* Mobile Menu Button */}
           <button
             onClick={() => setMenuOpen((prev) => !prev)}
@@ -280,9 +341,10 @@ export default function Navbar() {
           {/* Trading Section - Mobile */}
           {isConnected && (
             <div className="border-t border-gray-700 pt-4">
+
               <h4 className="text-sm font-semibold text-gray-400 mb-3">TRADING</h4>
               {tradingItems.map((item, id) => {
-                const Icon = item.icon;
+
                 return (
                   <Link
                     key={id}
@@ -294,7 +356,9 @@ export default function Navbar() {
                     } hover:text-white`}
                     onClick={() => setMenuOpen(false)}
                   >
-                    <Icon className="w-4 h-4" />
+
+                    <Layers2 className="w-4 h-4" />
+
                     {item.label}
                     {item.comingSoon && (
                       <span className="text-xs bg-purple-600/20 text-purple-300 px-2 py-0.5 rounded-full">
@@ -309,7 +373,9 @@ export default function Navbar() {
 
           {/* Resources Section - Mobile */}
           <div className="border-t border-gray-700 pt-4">
+
             <h4 className="text-sm font-semibold text-gray-400 mb-3">RESOURCES</h4>
+
             {resourcesItems.map((item, id) =>
               item.external ? (
                 <a
@@ -329,7 +395,9 @@ export default function Navbar() {
                   className={`block text-base font-medium mb-3 ${
                     pathname === item.href
                       ? "text-white font-semibold underline"
+
                     : "text-gray-300"
+
                   } hover:text-white hover:underline`}
                   onClick={() => setMenuOpen(false)}
                 >
@@ -351,6 +419,15 @@ export default function Navbar() {
           </div>
         </div>
       )}
+
+      <div className="w-full overflow-hidden bg-gray-100/20 rounded-md py-1 text-center">
+        <span className="mx-2 text-sm font-medium text-gray-300">
+          You can get the custon xfi token through the faucet with the link: {" "}
+          <Link href="https://xfi-faucet.vercel.app/" className="text-white">
+            https://xfi-faucet.vercel.app/
+          </Link>
+        </span>
+      </div>
     </nav>
   );
 }
