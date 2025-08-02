@@ -266,27 +266,6 @@ npm run dev
 yarn dev
 ```
 
-### Environment Variables
-
-Create a `.env.local` file with the following variables:
-
-```env
-# Blockchain Configuration
-NEXT_PUBLIC_CHAIN_ID=1
-NEXT_PUBLIC_RPC_URL=https://mainnet.infura.io/v3/your-project-id
-
-# Smart Contract Addresses
-NEXT_PUBLIC_XFI_TOKEN_ADDRESS=0x...
-NEXT_PUBLIC_STAKING_CONTRACT_ADDRESS=0x...
-NEXT_PUBLIC_SBFT_CONTRACT_ADDRESS=0x...
-NEXT_PUBLIC_MARKETPLACE_CONTRACT_ADDRESS=0x...
-
-# API Configuration
-NEXT_PUBLIC_API_BASE_URL=https://api.crossfinance.com
-
-# Optional: Analytics
-NEXT_PUBLIC_ANALYTICS_ID=your-analytics-id
-```
 
 ## Smart Contract Integration
 
