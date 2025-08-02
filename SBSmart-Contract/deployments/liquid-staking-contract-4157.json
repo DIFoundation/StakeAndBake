@@ -1,0 +1,34 @@
+{
+  "network": "unknown",
+  "chainId": 4157,
+  "contractAddress": "0xEb7dF0DFDb6696b827030a32A07dEB8B4a492397",
+  "deployer": "0xB24023434c3670E100068C925A87fE8F500d909a",
+  "xfiTokenAddress": "0xF321b818669d56C8f11b3617429cD987c745B0D2",
+  "sbftTokenAddress": "0x69a0eE537F098C5F84ef5d4c8b4215860F5d5206",
+  "masterNFTAddress": "0x9F69a019DC9F4a4A30a255B572E7F425a7814637",
+  "unstakingDelay": "604800",
+  "annualRewardRate": "800",
+  "minStake": "1000000000000000000",
+  "exchangeRate": "0",
+  "owner": "0xB24023434c3670E100068C925A87fE8F500d909a",
+  "deploymentTime": "2025-07-31T18:31:59.608Z",
+  "transactionHash": "0x307892242803d93ca0cfdb3e43aeee1cdd996e4d0c9707f6189a98d6903f36b4",
+  "constants": {
+    "STAKING_FEE": "100",
+    "BASIS_POINTS": "10000",
+    "MIN_STAKE": "1000000000000000000",
+    "MAX_UNSTAKING_DELAY": "2592000",
+    "MIN_UNSTAKING_DELAY": "86400",
+    "SECONDS_PER_YEAR": "31536000"
+  },
+  "liquidStakingFeatures": {
+    "description": "Liquid staking with sbFT tokens representing shares",
+    "features": [
+      "Exchange rate appreciation over time",
+      "Instant staking with sbFT tokens",
+      "Unstaking delay with request/process model",
+      "Emergency unstaking with penalty",
+      "Automatic reward compounding"
+    ]
+  }
+}

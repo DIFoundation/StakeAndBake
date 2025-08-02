@@ -13,7 +13,7 @@ async function main() {
   console.log("💰 Account balance:", ethers.utils.formatEther(balance), "XFI");
   
   // ⚠️ IMPORTANT: Replace these addresses with your actual deployed contract addresses
-  const SBFT_TOKEN_ADDRESS = "0x69a0eE537F098C5F84ef5d4c8b4215860F5d5206"; // Replace with your sbFT token address
+  const SBFT_TOKEN_ADDRESS = "0x9c020d7AF67aB9B77488E9554bC09dDBB2348535"; // Replace with your sbFT token address
   const USDC_TOKEN_ADDRESS = "0xdEFAA5459ba8DcC24A7470DB4835C97B0fdf85fc"; // Replace with your USDC token address
   
   console.log("\n📋 Marketplace Contract Configuration:");
