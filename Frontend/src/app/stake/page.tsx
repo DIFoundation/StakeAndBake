@@ -3,10 +3,10 @@
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import Image from "next/image";
-import { useAccount, useBalance, useWriteContract, useReadContract, useWaitForTransactionReceipt } from "wagmi";
+import { useAccount, useWriteContract, useReadContract, useWaitForTransactionReceipt } from "wagmi";
 import { parseUnits, formatUnits } from "viem";
 import { stakingContractAbi, stakingContractAddress, xfiTokenAbi, xfiTokenAddress, sbFTTokenAddress } from "@/contractAddressAndABI";
-import { Loader2, Clock, Coins, Gift, TrendingUp, Lock, CheckCircle, ArrowUpDown, Zap } from "lucide-react";
+import { Loader2, Clock, Coins, Gift, TrendingUp, CheckCircle, ArrowUpDown, Zap } from "lucide-react";
 
 export default function SimpleStakePage() {
   const { address } = useAccount();
@@ -14,7 +14,7 @@ export default function SimpleStakePage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  const { data: balance } = useBalance({ address });
+  // const { data: balance } = useBalance({ address });
   const { data: tokenBalance } = useReadContract({
     address: xfiTokenAddress,
     functionName: "balanceOf",

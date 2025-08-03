@@ -20,11 +20,11 @@ import {
   xfiTokenAddress,
   sbFTTokenAddress,
 } from "@/contractAddressAndABI";
-import { formatEther, parseUnits } from "viem";
+import { formatEther } from "viem";
 import { useTransactionHistory } from "@/hooks/useTransactionHistory";
 import { Clock, ArrowRight, X, Loader2, AlertCircle, CheckCircle } from "lucide-react";
 
-function formatBalance(balance, decimals = 4) {
+function formatBalance(balance: number | string, decimals = 4) {
   const num = typeof balance === "string" ? parseFloat(balance) : Number(balance);
   if (isNaN(num) || num === 0) return "0.00";
   if (num < 0.01) return "< 0.01";
@@ -33,7 +33,7 @@ function formatBalance(balance, decimals = 4) {
   return num.toFixed(decimals);
 }
 
-function safeBigIntToString(value, fallback = "0.00") {
+function safeBigIntToString(value: number | string | bigint, fallback = "0.00") {
   try {
     if (!value) return fallback;
     if (typeof value === "bigint") {
@@ -43,7 +43,7 @@ function safeBigIntToString(value, fallback = "0.00") {
       return formatBalance(value.toString());
     }
     return fallback;
-  } catch (error) {
+  } catch {
     return fallback;
   }
 }
@@ -72,17 +72,17 @@ function UnstakeRequestCard({ requestData, requestId }) {
   const { writeContract: cancelUnstakeContract, data: hashCancel } = useWriteContract();
 
   const {
-    isLoading: isProcessingTx,
+    // isLoading: isProcessingTx,
     isSuccess: isSuccessProcess,
-    error: errorProcess,
+    // error: errorProcess,
   } = useWaitForTransactionReceipt({
     hash: hashProcess,
   });
 
   const {
-    isLoading: isCancellingTx,
+    // isLoading: isCancellingTx,
     isSuccess: isSuccessCancel,
-    error: errorCancel,
+    // error: errorCancel,
   } = useWaitForTransactionReceipt({
     hash: hashCancel,
   });
@@ -135,7 +135,7 @@ function UnstakeRequestCard({ requestData, requestId }) {
     unlockDate = new Date(); // Fallback to current date
   }
 
-  const formatTime = (seconds) => {
+  const formatTime = (seconds: number) => {
     const d = Math.floor(seconds / (3600 * 24));
     const h = Math.floor((seconds % (3600 * 24)) / 3600);
     const m = Math.floor((seconds % 3600) / 60);
@@ -339,7 +339,7 @@ function UnstakeRequestList({ requestIds }) {
 function UnstakingQueue() {
   const { address, isConnected } = useAccount();
 
-  const { data: requestIds, isLoading, error, refetch } = useReadContract({
+  const { data: requestIds, isLoading, error } = useReadContract({
     address: stakingContractAddress,
     abi: stakingContractAbi,
     functionName: "getUserUnstakeRequests",
@@ -380,7 +380,7 @@ function UnstakingQueue() {
 export default function DashboardPage() {
   const { address, isConnected } = useAccount();
   const { data: ethBalance } = useBalance({ address });
-  const [refreshKey, setRefreshKey] = useState(0);
+  // const [refreshKey, setRefreshKey] = useState(0);
 
   const { transactions: userTransactions, isLoading: transactionsLoading, error: transactionsError } =
     useTransactionHistory();
@@ -476,7 +476,7 @@ export default function DashboardPage() {
     ? safeBigIntToString(totalFeesCollectedData)
     : "0.00";
 
-  const calculateEarnings = (baseAmount, apy, timeInYears = 1) => {
+  const calculateEarnings = (baseAmount: string, apy: string, timeInYears = 1) => {
     const amount = parseFloat(baseAmount) || 0;
     const rate = parseFloat(apy) / 100 || 0;
     const earnings = amount * rate * timeInYears;

@@ -43,7 +43,7 @@ function safeBigIntToString(value, fallback = "0.00") {
       return formatBalance(value.toString());
     }
     return fallback;
-  } catch (error) {
+  } catch {
     return fallback;
   }
 }
@@ -54,7 +54,7 @@ function UnstakeRequestCard({ requestData, requestId, onUpdate }) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
 
-  const { data: canProcessData, refetch: refetchCanProcess } = useReadContract({
+  const { data: canProcessData } = useReadContract({
     address: stakingContractAddress,
     abi: stakingContractAbi,
     functionName: "canProcessUnstake",
@@ -148,7 +148,7 @@ function UnstakeRequestCard({ requestData, requestId, onUpdate }) {
     if (isNaN(unlockDate.getTime())) {
       throw new Error("Invalid date");
     }
-  } catch (error) {
+  } catch {
     unlockDate = new Date();
   }
 
@@ -168,7 +168,7 @@ function UnstakeRequestCard({ requestData, requestId, onUpdate }) {
   
   try {
     formattedAmount = safeBigIntToString(xfiAmount);
-  } catch (error) {
+  } catch {
     formattedAmount = "0.00";
   }
 
@@ -352,7 +352,7 @@ function UnstakeRequestList({ requestIds, onUpdate }) {
         <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 rounded-2xl p-8 border border-gray-700">
           <Clock className="h-16 w-16 text-gray-500 mx-auto mb-4" />
           <h3 className="text-xl font-semibold text-gray-300 mb-2">No Active Requests</h3>
-          <p className="text-gray-500">You don't have any pending unstake requests at the moment.</p>
+          <p className="text-gray-500">You don&apos;t have any pending unstake requests at the moment.</p>
         </div>
       </div>
     );
@@ -428,7 +428,7 @@ function RequestUnstakeForm({ onUpdate }) {
         functionName: "requestUnstake",
         args: [amount],
       });
-    } catch (error) {
+    } catch {
       setIsProcessing(false);
       toast.error("Invalid amount entered");
     }
@@ -451,7 +451,7 @@ function RequestUnstakeForm({ onUpdate }) {
           <div>
             <p className="text-amber-200 text-sm font-medium mb-1">7-Day Waiting Period</p>
             <p className="text-amber-300/80 text-sm">
-              After requesting unstake, there's a 7-day waiting period before you can claim your XFI tokens.
+              After requesting unstake, there&apos;s a 7-day waiting period before you can claim your XFI tokens.
             </p>
           </div>
         </div>
@@ -564,7 +564,7 @@ function EmergencyUnstakeForm({ onUpdate }) {
         functionName: "emergencyUnstake",
         args: [amount, parseInt(penaltyRate)],
       });
-    } catch (error) {
+    } catch  {
       setIsProcessing(false);
       toast.error("Invalid amount entered");
     }
@@ -641,7 +641,7 @@ function EmergencyUnstakeForm({ onUpdate }) {
         {unstakeAmount && (
           <div className="bg-gray-800/50 rounded-xl p-4">
             <div className="flex justify-between items-center">
-              <span className="text-gray-400">You'll receive approximately:</span>
+              <span className="text-gray-400">You&apos;ll receive approximately:</span>
               <span className="text-xl font-bold text-green-400">{estimatedReceived} XFI</span>
             </div>
           </div>
@@ -678,7 +678,7 @@ function EmergencyUnstakeForm({ onUpdate }) {
                 <span className="text-red-400 font-medium">-{(parseFloat(unstakeAmount || "0") * parseInt(penaltyRate) / 10000).toFixed(4)} XFI</span>
               </div>
               <div className="flex justify-between border-t border-gray-600 pt-3">
-                <span className="text-gray-300 font-medium">You'll receive:</span>
+                <span className="text-gray-300 font-medium">You&apos;ll receive:</span>
                 <span className="text-green-400 font-bold">{estimatedReceived} XFI</span>
               </div>
             </div>
@@ -1057,7 +1057,7 @@ export default function DashboardPage() {
                 </h3>
                 <p className="text-gray-400 text-lg leading-relaxed max-w-3xl mx-auto">
                   Your sbFT tokens automatically earn rewards through exchange rate appreciation. 
-                  No need to claim or compound - it's all automatic! Watch your tokens grow in value over time.
+                  No need to claim or compound - it&apos;s all automatic! Watch your tokens grow in value over time.
                 </p>
               </div>
               
