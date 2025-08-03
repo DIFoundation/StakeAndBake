@@ -19,7 +19,7 @@ import {
   xfiTokenAddress,
   sbFTTokenAddress,
 } from "@/contractAddressAndABI";
-import { formatEther, parseEther } from "viem";
+import { Abi, formatEther, parseEther } from "viem";
 import { useTransactionHistory } from "@/hooks/useTransactionHistory";
 import { Clock, ArrowRight, X, Loader2, AlertCircle, CheckCircle, Trash2, Plus, AlertTriangle } from "lucide-react";
 import { toast } from "react-toastify";
@@ -48,7 +48,14 @@ function safeBigIntToString(value: number | bigint | string, fallback = "0.00") 
   }
 }
 
-function UnstakeRequestCard({ requestData, requestId, onUpdate }) {
+interface UnstakeRequestCardProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  requestData: any; 
+  requestId: string | number | bigint; 
+  onUpdate: () => void; 
+}
+
+function UnstakeRequestCard({ requestData, requestId, onUpdate }: UnstakeRequestCardProps) {
   const { address } = useAccount();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -61,7 +68,6 @@ function UnstakeRequestCard({ requestData, requestId, onUpdate }) {
     args: [requestId],
     query: {
       enabled: !!requestData && !requestData.processed,
-      refetchInterval: 5000,
     },
   });
 
@@ -288,11 +294,15 @@ function UnstakeRequestCard({ requestData, requestId, onUpdate }) {
   );
 }
 
-function UnstakeRequestList({ requestIds, onUpdate }) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const contractsToRead = requestIds?.map((id: any) => ({
-    address: stakingContractAddress,
-    abi: stakingContractAbi,
+interface UnstakeRequestListProps {
+  requestIds: (string | number | bigint)[];
+  onUpdate: () => void;
+}
+
+function UnstakeRequestList({ requestIds, onUpdate }: UnstakeRequestListProps) {
+  const contractsToRead = requestIds?.map((id) => ({
+    address: stakingContractAddress as `0x${string}`,
+    abi: stakingContractAbi as Abi,
     functionName: 'unstakeRequests',
     args: [id],
   })) ?? [];
@@ -373,7 +383,11 @@ function UnstakeRequestList({ requestIds, onUpdate }) {
   );
 }
 
-function RequestUnstakeForm({ onUpdate }) {
+interface RequestUnstakeFormProps {
+  onUpdate: () => void;
+}
+
+function RequestUnstakeForm({ onUpdate }: RequestUnstakeFormProps) {
   const { address } = useAccount();
   const [unstakeAmount, setUnstakeAmount] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
@@ -506,7 +520,11 @@ function RequestUnstakeForm({ onUpdate }) {
   );
 }
 
-function EmergencyUnstakeForm({ onUpdate }) {
+interface EmergencyUnstakeFormProps {
+  onUpdate: () => void;
+}
+
+function EmergencyUnstakeForm({ onUpdate }: EmergencyUnstakeFormProps) {
   const { address } = useAccount();
   const [unstakeAmount, setUnstakeAmount] = useState("");
   const [penaltyRate, setPenaltyRate] = useState("1000"); // 10% default
@@ -778,7 +796,7 @@ function UnstakingQueue() {
         <div className="bg-gradient-to-r from-purple-900/30 to-blue-900/30 border-b border-[#3F3F46] p-6">
           <div className="flex justify-between items-center">
             <div>
-              <h2 className="text-2xl font-bold text-white">Your Unstaking Queue</h2>
+              <h2 className="text-2xl font-bold mb-4">Your Unstaking Queue</h2>
               <p className="text-gray-400 mt-1">Monitor and manage your pending unstake requests</p>
             </div>
             <button

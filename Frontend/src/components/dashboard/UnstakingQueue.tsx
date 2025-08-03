@@ -20,7 +20,7 @@ import {
   xfiTokenAddress,
   sbFTTokenAddress,
 } from "@/contractAddressAndABI";
-import { formatEther } from "viem";
+import { Abi, formatEther } from "viem";
 import { useTransactionHistory } from "@/hooks/useTransactionHistory";
 import { Clock, ArrowRight, X, Loader2, AlertCircle, CheckCircle } from "lucide-react";
 
@@ -48,7 +48,13 @@ function safeBigIntToString(value: number, fallback = "0.00") {
   }
 }
 
-function UnstakeRequestCard({ requestData, requestId }) {
+interface UnstakeRequestCardProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  requestData: any;
+  requestId: string | number | bigint;
+}
+
+function UnstakeRequestCard({ requestData, requestId }: UnstakeRequestCardProps) {
   const { address } = useAccount();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -243,11 +249,15 @@ function UnstakeRequestCard({ requestData, requestId }) {
   );
 }
 
-function UnstakeRequestList({ requestIds }) {
+interface UnstakeRequestListProps {
+  requestIds: (string | number | bigint)[];
+}
+
+function UnstakeRequestList({ requestIds }: UnstakeRequestListProps) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const contractsToRead = requestIds?.map((id: any) => ({
-    address: stakingContractAddress,
-    abi: stakingContractAbi,
+    address: stakingContractAddress as `0x${string}`,
+    abi: stakingContractAbi as Abi,
     functionName: 'unstakeRequests',
     args: [id],
   })) ?? [];
