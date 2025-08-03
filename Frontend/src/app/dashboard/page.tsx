@@ -24,7 +24,7 @@ import { useTransactionHistory } from "@/hooks/useTransactionHistory";
 import { Clock, ArrowRight, X, Loader2, AlertCircle, CheckCircle, Trash2, Plus, AlertTriangle } from "lucide-react";
 import { toast } from "react-toastify";
 
-function formatBalance(balance, decimals = 4) {
+function formatBalance(balance: number | bigint | string, decimals = 4) {
   const num = typeof balance === "string" ? parseFloat(balance) : Number(balance);
   if (isNaN(num) || num === 0) return "0.00";
   if (num < 0.01) return "< 0.01";
@@ -33,7 +33,7 @@ function formatBalance(balance, decimals = 4) {
   return num.toFixed(decimals);
 }
 
-function safeBigIntToString(value, fallback = "0.00") {
+function safeBigIntToString(value: number | bigint | string, fallback = "0.00") {
   try {
     if (!value) return fallback;
     if (typeof value === "bigint") {
@@ -152,7 +152,7 @@ function UnstakeRequestCard({ requestData, requestId, onUpdate }) {
     unlockDate = new Date();
   }
 
-  const formatTime = (seconds) => {
+  const formatTime = (seconds: number) => {
     const d = Math.floor(seconds / (3600 * 24));
     const h = Math.floor((seconds % (3600 * 24)) / 3600);
     const m = Math.floor((seconds % 3600) / 60);
@@ -289,7 +289,8 @@ function UnstakeRequestCard({ requestData, requestId, onUpdate }) {
 }
 
 function UnstakeRequestList({ requestIds, onUpdate }) {
-  const contractsToRead = requestIds?.map(id => ({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const contractsToRead = requestIds?.map((id: any) => ({
     address: stakingContractAddress,
     abi: stakingContractAbi,
     functionName: 'unstakeRequests',
@@ -434,7 +435,7 @@ function RequestUnstakeForm({ onUpdate }) {
     }
   };
 
-  const maxBalance = sbftBalance ? safeBigIntToString(sbftBalance) : "0.00";
+  const maxBalance = sbftBalance ? sbftBalance.toString() : "0.00";
 
   return (
     <div className="bg-gradient-to-br from-[#1A1A1A] to-[#2A2A2A] rounded-2xl p-8 border border-[#3F3F46] shadow-lg">
@@ -570,7 +571,7 @@ function EmergencyUnstakeForm({ onUpdate }) {
     }
   };
 
-  const maxBalance = sbftBalance ? safeBigIntToString(sbftBalance) : "0.00";
+  const maxBalance = sbftBalance ? sbftBalance.toString() : "0.00";
   const penaltyPercentage = (parseInt(penaltyRate) / 100).toFixed(1);
   const estimatedReceived = unstakeAmount ? (parseFloat(unstakeAmount) * (1 - parseInt(penaltyRate) / 10000)).toFixed(4) : "0.00";
 
@@ -916,7 +917,8 @@ export default function DashboardPage() {
     ? safeBigIntToString(totalFeesCollectedData)
     : "0.00";
 
-  const calculateEarnings = (baseAmount, apy, timeInYears = 1) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const calculateEarnings = (baseAmount: any, apy: any, timeInYears = 1) => {
     const amount = parseFloat(baseAmount) || 0;
     const rate = parseFloat(apy) / 100 || 0;
     const earnings = amount * rate * timeInYears;
