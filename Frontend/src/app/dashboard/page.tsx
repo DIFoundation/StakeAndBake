@@ -166,8 +166,8 @@ function UnstakeRequestCard({ requestData, requestId, onUpdate }: UnstakeRequest
     return `${d}d ${h}h ${m}m ${s}s`;
   };
 
-  const canProcessNow = canProcessData ? canProcessData[0] : false;
-  const timeRemaining = canProcessData ? Number(canProcessData[1]) : 0;
+  const canProcessNow = canProcessData && Array.isArray(canProcessData) ? canProcessData[0] : false;
+  const timeRemaining = canProcessData && Array.isArray(canProcessData) ? Number(canProcessData[1]) : 0;
 
   const xfiAmount = requestData.xfiAmount;
   let formattedAmount;
@@ -341,7 +341,7 @@ function UnstakeRequestList({ requestIds, onUpdate }: UnstakeRequestListProps) {
   const processedRequests = requestDetails
     ?.map((result, index) => {
       if (result.status === "success" && result.result) {
-        const [user, xfiAmount, unlockTime, processed] = result.result;
+        const [user, xfiAmount, unlockTime, processed] = result.result as [string, bigint, bigint, boolean];
         
         if (!processed) {
           return {
@@ -355,7 +355,7 @@ function UnstakeRequestList({ requestIds, onUpdate }: UnstakeRequestListProps) {
       }
       return null;
     })
-    .filter(request => request !== null) || [];
+    .filter((request): request is NonNullable<typeof request> => request !== null) || [];
 
   if (processedRequests.length === 0) {
     return (
@@ -820,7 +820,7 @@ function UnstakingQueue() {
               <span className="text-lg">Error fetching requests: {error.message}</span>
             </div>
           ) : (
-            <UnstakeRequestList requestIds={requestIds} onUpdate={handleUpdate} />
+            <UnstakeRequestList requestIds={requestIds as (string | number | bigint)[]} onUpdate={handleUpdate} />
           )}
         </div>
       </div>
@@ -915,25 +915,25 @@ export default function DashboardPage() {
     refetchPoolData();
   }, [refetchXfiBalance, refetchSbftBalance, refetchPoolData]);
 
-  const xfiBalanceFormatted = xfiBalance ? safeBigIntToString(xfiBalance) : "0.00";
+  const xfiBalanceFormatted = xfiBalance && (typeof xfiBalance === "string" || typeof xfiBalance === "number" || typeof xfiBalance === "bigint") ? safeBigIntToString(xfiBalance) : "0.00";
   const ethBalanceFormatted = ethBalance ? formatBalance(ethBalance.formatted) : "0.00";
-  const sbftWalletBalanceFormatted = sbftWalletBalance ? safeBigIntToString(sbftWalletBalance) : "0.00";
+  const sbftWalletBalanceFormatted = sbftWalletBalance && (typeof sbftWalletBalance === "string" || typeof sbftWalletBalance === "number" || typeof sbftWalletBalance === "bigint") ? safeBigIntToString(sbftWalletBalance) : "0.00";
   
-  const totalPoolXFI = totalXFIInPool ? safeBigIntToString(totalXFIInPool) : "0.00";
-  const pendingUnstakes = totalPendingUnstakes ? safeBigIntToString(totalPendingUnstakes) : "0.00";
-  const currentExchangeRate = exchangeRate ? safeBigIntToString(exchangeRate) : "1.00";
+  const totalPoolXFI = totalXFIInPool && (typeof totalXFIInPool === "string" || typeof totalXFIInPool === "number" || typeof totalXFIInPool === "bigint") ? safeBigIntToString(totalXFIInPool) : "0.00";
+  const pendingUnstakes = totalPendingUnstakes && (typeof totalPendingUnstakes === "string" || typeof totalPendingUnstakes === "number" || typeof totalPendingUnstakes === "bigint") ? safeBigIntToString(totalPendingUnstakes) : "0.00";
+  const currentExchangeRate = exchangeRate && (typeof exchangeRate === "string" || typeof exchangeRate === "number" || typeof exchangeRate === "bigint") ? safeBigIntToString(exchangeRate) : "1.00";
   
-  const userXFIValue = sbftWalletBalance && exchangeRate 
-    ? safeBigIntToString((sbftWalletBalance * exchangeRate) / BigInt(1e18))
+  const userXFIValue = sbftWalletBalance && exchangeRate && 
+    (typeof sbftWalletBalance === 'string' || typeof sbftWalletBalance === 'number' || typeof sbftWalletBalance === 'bigint') &&
+    (typeof exchangeRate === 'string' || typeof exchangeRate === 'number' || typeof exchangeRate === 'bigint')
+    ? safeBigIntToString((BigInt(sbftWalletBalance) * BigInt(exchangeRate)) / BigInt(1e18))
     : "0.00";
 
-  const apyPercentage = annualRewardRateData
-    ? (Number(annualRewardRateData) / 100).toString()
+  const apyPercentage = annualRewardRateData && (typeof annualRewardRateData === "string" || typeof annualRewardRateData === "number" || typeof annualRewardRateData === "bigint")
+    ? (Number(annualRewardRateData) / 100)
     : "8.00";
 
-  const totalFeesCollected = totalFeesCollectedData
-    ? safeBigIntToString(totalFeesCollectedData)
-    : "0.00";
+  const totalFeesCollected = totalFeesCollectedData && (typeof totalFeesCollectedData === "string" || typeof totalFeesCollectedData === "number" || typeof totalFeesCollectedData === "bigint") ? safeBigIntToString(totalFeesCollectedData) : "0.00";
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const calculateEarnings = (baseAmount: any, apy: any, timeInYears = 1) => {
@@ -1012,7 +1012,7 @@ export default function DashboardPage() {
         totalStaked={userXFIValue}
         balance={ethBalanceFormatted}
         rewardsEarned="0.00"
-        apy={apyPercentage}
+        apy={apyPercentage.toString()}
         nextRewardDate={nextRewardDate}
         totalStakedContract={totalPoolXFI}
         totalFeesCollected={totalFeesCollected}

@@ -33,7 +33,7 @@ function formatBalance(balance: number | string, decimals = 4) {
   return num.toFixed(decimals);
 }
 
-function safeBigIntToString(value: number, fallback = "0.00") {
+function safeBigIntToString(value: string | number | bigint, fallback = "0.00") {
   try {
     if (!value) return fallback;
     if (typeof value === "bigint") {
@@ -149,8 +149,8 @@ function UnstakeRequestCard({ requestData, requestId }: UnstakeRequestCardProps)
     return `${d}d ${h}h ${m}m ${s}s`;
   };
 
-  const canProcessNow = canProcessData ? canProcessData[0] : false;
-  const timeRemaining = canProcessData ? Number(canProcessData[1]) : 0;
+  const canProcessNow = canProcessData && Array.isArray(canProcessData) ? canProcessData[0] : false;
+  const timeRemaining = canProcessData && Array.isArray(canProcessData) ? Number(canProcessData[1]) : 0;
 
   // FIXED: Better handling of XFI amount
   const xfiAmount = requestData.xfiAmount;
@@ -297,7 +297,7 @@ function UnstakeRequestList({ requestIds }: UnstakeRequestListProps) {
       
       // Check if the result is successful and has data
       if (result.status === "success" && result.result) {
-        const [user, xfiAmount, unlockTime, processed] = result.result;
+        const [user, xfiAmount, unlockTime, processed] = result.result as [string, bigint, bigint, boolean];
         
         console.log(`Request ${index} details:`, {
           user,
@@ -382,7 +382,7 @@ function UnstakingQueue() {
           Error fetching requests: {error.message}
         </div>
       ) : (
-        <UnstakeRequestList requestIds={requestIds} />
+        <UnstakeRequestList requestIds={requestIds as (string | number | bigint)[]} />
       )}
     </div>
   );
@@ -467,30 +467,30 @@ export default function DashboardPage() {
     },
   });
 
-  const xfiBalanceFormatted = xfiBalance ? xfiBalance : "0.00";
+  const xfiBalanceFormatted = xfiBalance && (typeof xfiBalance === "string" || typeof xfiBalance === "number" || typeof xfiBalance === "bigint") ? safeBigIntToString(xfiBalance) : "0.00";
   const ethBalanceFormatted = ethBalance ? formatBalance(ethBalance.formatted) : "0.00";
-  const sbftWalletBalanceFormatted = sbftWalletBalance ? sbftWalletBalance : "0.00";
+  const sbftWalletBalanceFormatted = sbftWalletBalance && (typeof sbftWalletBalance === "string" || typeof sbftWalletBalance === "number" || typeof sbftWalletBalance === "bigint") ? safeBigIntToString(sbftWalletBalance) : "0.00";
   
-  const totalPoolXFI = totalXFIInPool ? totalXFIInPool : "0.00";
-  const pendingUnstakes = totalPendingUnstakes ? totalPendingUnstakes : "0.00";
-  const currentExchangeRate = exchangeRate ? exchangeRate : "1.00";
+  const totalPoolXFI = totalXFIInPool && (typeof totalXFIInPool === "string" || typeof totalXFIInPool === "number" || typeof totalXFIInPool === "bigint") ? safeBigIntToString(totalXFIInPool) : "0.00";
+  const pendingUnstakes = totalPendingUnstakes && (typeof totalPendingUnstakes === "string" || typeof totalPendingUnstakes === "number" || typeof totalPendingUnstakes === "bigint") ? safeBigIntToString(totalPendingUnstakes) : "0.00";
+  const currentExchangeRate = exchangeRate && (typeof exchangeRate === "string" || typeof exchangeRate === "number" || typeof exchangeRate === "bigint") ? safeBigIntToString(exchangeRate) : "1.00";
   
-  const s = sbftWalletBalance * exchangeRate;
-  const userXFIValue = sbftWalletBalance && exchangeRate 
-    ? (s / (1e18)).toString()
+  const userXFIValue = sbftWalletBalance && exchangeRate && 
+    (typeof sbftWalletBalance === 'string' || typeof sbftWalletBalance === 'number' || typeof sbftWalletBalance === 'bigint') &&
+    (typeof exchangeRate === 'string' || typeof exchangeRate === 'number' || typeof exchangeRate === 'bigint')
+    ? safeBigIntToString((BigInt(sbftWalletBalance) * BigInt(exchangeRate)) / BigInt(1e18))
     : "0.00";
 
-  const apyPercentage = annualRewardRateData
-    ? (Number(annualRewardRateData) / 100).toString()
+  const apyPercentage = annualRewardRateData && (typeof annualRewardRateData === "string" || typeof annualRewardRateData === "number" || typeof annualRewardRateData === "bigint")
+    ? (Number(annualRewardRateData) / 100)
     : "8.00";
 
-  const totalFeesCollected = totalFeesCollectedData
-    ? totalFeesCollectedData
-    : "0.00";
+  const totalFeesCollected = totalFeesCollectedData && (typeof totalFeesCollectedData === "string" || typeof totalFeesCollectedData === "number" || typeof totalFeesCollectedData === "bigint") ? safeBigIntToString(totalFeesCollectedData) : "0.00";
 
-  const calculateEarnings = (baseAmount: string, apy: string, timeInYears = 1) => {
-    const amount = parseFloat(baseAmount) || 0;
-    const rate = parseFloat(apy) / 100 || 0;
+
+  const calculateEarnings = ( baseAmount: string | number, apy: string | number, timeInYears = 1) => {
+    const amount = (typeof baseAmount === 'string' ? parseFloat(baseAmount) : baseAmount) || 0;
+    const rate = ((typeof apy === 'string' ? parseFloat(apy) : apy) / 100) || 0;
     const earnings = amount * rate * timeInYears;
     return earnings.toFixed(4);
   };
@@ -529,13 +529,13 @@ export default function DashboardPage() {
           <div>
             <p className="text-sm text-gray-400">Current Exchange Rate</p>
             <p className="text-2xl font-bold text-purple-400">
-              1 sbFT = {currentExchangeRate.toString()} XFI
+              1 sbFT = {currentExchangeRate} XFI
             </p>
           </div>
           <div className="text-right">
             <p className="text-sm text-gray-400">Your sbFT Value</p>
             <p className="text-xl font-bold text-green-400">
-              {sbftWalletBalanceFormatted.toString()} sbFT ≈ {userXFIValue} XFI
+              {sbftWalletBalanceFormatted} sbFT ≈ {userXFIValue} XFI
             </p>
           </div>
           <ArrowRight className="h-8 w-8 text-purple-400" />
@@ -547,17 +547,17 @@ export default function DashboardPage() {
       <UnstakingQueue />
 
       <TotalStakedStats
-        totalBals={xfiBalanceFormatted.toString()}
+        totalBals={xfiBalanceFormatted}
         totalStaked={userXFIValue}
         balance={ethBalanceFormatted}
         rewardsEarned="0.00"
-        apy={apyPercentage}
+        apy={apyPercentage.toString()}
         nextRewardDate={nextRewardDate}
-        totalStakedContract={totalPoolXFI.toString()}
-        totalFeesCollected={totalFeesCollected.toString()}
+        totalStakedContract={totalPoolXFI}
+        totalFeesCollected={totalFeesCollected}
         estimatedYearlyEarnings={estimatedYearlyEarnings}
         estimatedMonthlyEarnings={estimatedMonthlyEarnings}
-        sbftWalletBalance={sbftWalletBalanceFormatted.toString()}
+        sbftWalletBalance={sbftWalletBalanceFormatted}
       />
 
       <div className="bg-[#121212]/80 border border-[#3F3F46] text-white rounded-xl p-6 mb-8">
@@ -565,18 +565,18 @@ export default function DashboardPage() {
         <div className="grid md:grid-cols-3 gap-6">
           <div className="bg-[#1A1A1A] rounded-lg p-4 border border-[#3F3F46]">
             <p className="text-gray-400 text-sm mb-2">Total XFI in Pool</p>
-            <p className="text-2xl font-bold text-blue-400">{totalPoolXFI.toString()} XFI</p>
+            <p className="text-2xl font-bold text-blue-400">{totalPoolXFI} XFI</p>
             <p className="text-xs text-gray-500">Backing all sbFT tokens</p>
           </div>
           <div className="bg-[#1A1A1A] rounded-lg p-4 border border-[#3F3F46]">
             <p className="text-gray-400 text-sm mb-2">Pending Unstakes</p>
-            <p className="text-2xl font-bold text-yellow-400">{pendingUnstakes.toString()} XFI</p>
+            <p className="text-2xl font-bold text-yellow-400">{pendingUnstakes} XFI</p>
             <p className="text-xs text-gray-500">Reserved for unstaking queue</p>
           </div>
           <div className="bg-[#1A1A1A] rounded-lg p-4 border border-[#3F3F46]">
             <p className="text-gray-400 text-sm mb-2">Available Liquidity</p>
             <p className="text-2xl font-bold text-green-400">
-              {(parseFloat(totalPoolXFI.toString()) - parseFloat(pendingUnstakes.toString())).toFixed(4)} XFI
+              {(parseFloat(totalPoolXFI) - parseFloat(pendingUnstakes)).toFixed(4)} XFI
             </p>
             <p className="text-xs text-gray-500">Available for new unstakes</p>
           </div>
@@ -586,7 +586,7 @@ export default function DashboardPage() {
       <RewardsBreakdownChart
         stakedAmount={parseFloat(userXFIValue)}
         claimedAmount={0}
-        totalFeesCollected={parseFloat(totalFeesCollected.toString())}
+        totalFeesCollected={parseFloat(totalFeesCollected)}
       />
 
       <TransactionHistoryTable
