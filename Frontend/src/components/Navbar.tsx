@@ -34,23 +34,11 @@ export default function Navbar() {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
         setMenuOpen(false);
       }
-// <<<<<<< aaaa
-//       if (
-//         tradingDropdownRef.current &&
-//         !tradingDropdownRef.current.contains(e.target as Node)
-//       ) {
-//         setTradingDropdownOpen(false);
-//       }
-//       if (
-//         resourcesDropdownRef.current &&
-//         !resourcesDropdownRef.current.contains(e.target as Node)
-//       ) {
-// =======
+
       if (tradingDropdownRef.current && !tradingDropdownRef.current.contains(e.target as Node)) {
         setTradingDropdownOpen(false);
       }
       if (resourcesDropdownRef.current && !resourcesDropdownRef.current.contains(e.target as Node)) {
-// >>>>>>> main
         setResourcesDropdownOpen(false);
       }
     };
@@ -58,30 +46,6 @@ export default function Navbar() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
-// <<<<<<< aaaa
-//   const tradingItems = [
-//     { href: "/marketplace", label: "Marketplace", icon: TrendingUp },
-//     {
-//       href: "/bridge",
-//       label: "Bridge",
-//       icon: ArrowLeftRight,
-//       comingSoon: true,
-//     },
-//   ];
-
-//   const resourcesItems = [
-//     { href: "https://crossfi.org/", label: "Crossfi", external: true },
-//     {
-//       href: "https://test.xfiscan.com/dashboard",
-//       label: "Explorer",
-//       external: true,
-//     },
-//     { href: "/contact-us", label: "Contact Us" },
-//   ];
-
-//   const navItems = isConnected
-// =======
 
   // toast when connectt to wallet
   useEffect(() => {
@@ -102,7 +66,6 @@ export default function Navbar() {
   ];
 
   const navItems: NavItem[] = isConnected
-// >>>>>>> main
     ? [
         { href: "/dashboard", label: "Dashboard" },
         { href: "/stake", label: "Stake" },

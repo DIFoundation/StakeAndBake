@@ -4,6 +4,9 @@
 import { useAccount, useReadContract } from "wagmi";
 import { stakingContractAbi, stakingContractAddress } from "@/contractAddressAndABI";
 
+// Define the type for unstake request
+type UnstakeRequest = bigint;
+
 export default function DebugUnstaking() {
   const { address } = useAccount();
 
@@ -11,12 +14,12 @@ export default function DebugUnstaking() {
     address: stakingContractAddress,
     abi: stakingContractAbi,
     functionName: "getUserUnstakeRequests",
-    args: [address],
+    args: [address as `0x${string}`],
     query: { 
       enabled: !!address,
-      refetchInterval: 5000 // Refresh every 5 seconds
-    },
-  });
+      refetchInterval: 5000
+    }
+  }) as { data: UnstakeRequest[] | undefined, error: Error | null, isLoading: boolean };
 
   return (
     <div className="bg-red-900/20 border border-red-500 rounded-lg p-4 mb-4">

@@ -1,4 +1,3 @@
-// components/ProtectedRoute.tsx
 'use client';
 
 import { useAccount } from 'wagmi';
