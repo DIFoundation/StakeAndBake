@@ -21,12 +21,8 @@ import {
 } from "@/contractAddressAndABI";
 import { formatEther, parseEther } from "viem";
 import { useTransactionHistory } from "@/hooks/useTransactionHistory";
-// <<<<<<< voting/completed
-// import { Clock, ArrowRight, X, Loader2, AlertCircle, CheckCircle, Trash2, Plus, AlertTriangle } from "lucide-react";
-// import { toast } from 'react-toastify';
-// =======
+import { Clock, ArrowRight, X, Loader2, AlertCircle, CheckCircle, Trash2, Plus, AlertTriangle } from "lucide-react";
 import { toast } from "react-toastify";
-// >>>>>>> main
 
 function formatBalance(balance, decimals = 4) {
   const num = typeof balance === "string" ? parseFloat(balance) : Number(balance);
@@ -821,24 +817,8 @@ export default function DashboardPage() {
   const { transactions: userTransactions, isLoading: transactionsLoading, error: transactionsError } =
     useTransactionHistory();
 
-// <<<<<<< voting/completed
-//   const { data: xfiBalance, refetch: refetchXfiBalance } = useReadContract({
-// =======
-  // Function to refresh data after successful transactions
-  const handleTransactionSuccess = () => {
-    setRefreshKey((prev) => prev + 1);
-    toast.success("Transaction successful");
-    // You might want to trigger a refresh of transaction history here
-    // This would depend on how you want to implement the refresh mechanism
-  };
-
   // Read XFI token balance
-  const {
-    data: xfiBalance,
-    // isError: xfiBalanceError,
-    // isLoading: xfiBalanceLoading,
-  } = useReadContract({
-// >>>>>>> main
+  const { data: xfiBalance, refetch: refetchXfiBalance } = useReadContract({
     address: xfiTokenAddress,
     abi: xfiTokenAbi,
     functionName: "balanceOf",

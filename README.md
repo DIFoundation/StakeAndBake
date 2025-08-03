@@ -84,19 +84,19 @@ Your sbFT tokens continuously increase in XFI value without any manual intervent
 ### Screenshots
 
 #### Main Dashboard
-![Main Dashboard](https://iili.io/F8DwKts.png)
+![Main Dashboard](image.png)
 *Real-time exchange rate and auto-compounding rewards*
 
 #### Liquid Staking Interface
-![Staking Interface](https://iili.io/F8DwJSI.png)
+![Staking Interface](image-1.png)
 *Stake XFI and receive liquid sbFT tokens*
 
 #### Marketplace
-![Marketplace](https://iili.io/F8Dw29t.png)
+![Marketplace](image-2.png)
 *Trade sbFT tokens for immediate liquidity*
 
 #### Portfolio Management
-![sbFT Management](https://iili.io/F8DwFNn.png)
+![sbFT Management](image-3.png)
 *Manage your liquid staking positions*
 
 ## Getting Started
@@ -266,41 +266,20 @@ npm run dev
 yarn dev
 ```
 
-### Environment Variables
-
-Create a `.env.local` file with the following variables:
-
-```env
-# Blockchain Configuration
-NEXT_PUBLIC_CHAIN_ID=1
-NEXT_PUBLIC_RPC_URL=https://mainnet.infura.io/v3/your-project-id
-
-# Smart Contract Addresses
-NEXT_PUBLIC_XFI_TOKEN_ADDRESS=0x...
-NEXT_PUBLIC_STAKING_CONTRACT_ADDRESS=0x...
-NEXT_PUBLIC_SBFT_CONTRACT_ADDRESS=0x...
-NEXT_PUBLIC_MARKETPLACE_CONTRACT_ADDRESS=0x...
-
-# API Configuration
-NEXT_PUBLIC_API_BASE_URL=https://api.crossfinance.com
-
-# Optional: Analytics
-NEXT_PUBLIC_ANALYTICS_ID=your-analytics-id
-```
 
 ## Smart Contract Integration
 
 ### Contract Addresses
 
 ```javascript
-// Contract addresses (example - replace with actual)
+// Contract addresses 
 const CONTRACTS = {
-  XFI_TOKEN: "0x...",        // XFI Token Contract
-  LIQUID_STAKING: "0x...",   // Main Liquid Staking Contract  
-  SBFT: "0x...",             // sbFT Token Contract
-  MARKETPLACE: "0x...",      // sbFT Marketplace Contract
-  MASTER_NFT: "0x...",       // Master NFT Revenue Contract
-  GOVERNANCE: "0x..."        // Governance Contract
+  XFI_TOKEN: "0xF321b818669d56C8f11b3617429cD987c745B0D2",        // XFI Token Contract
+  LIQUID_STAKING: "0x9b5ff784A1bd9863Bb5accBE6508Cef544d497eB",   // Main Liquid Staking Contract  
+  SBFT: "0x9c020d7AF67aB9B77488E9554bC09dDBB2348535",             // sbFT Token Contract
+  MARKETPLACE: "0x20Fb97286Bb548b10A9238b50B623Fc20F76948E",      // sbFT Marketplace Contract
+  MASTER_NFT: "0x9F69a019DC9F4a4A30a255B572E7F425a7814637",       // Master NFT Revenue Contract
+  GOVERNANCE: "0x55DAe23e3c48d5c71BbCC3FBD2Ae529dbceDD20F"        // Governance Contract
 };
 ```
 
@@ -348,24 +327,45 @@ claimRewards() // Claim revenue distribution
 ### Project Structure
 
 ```
-StakeAndBake/
-├── components/          # React components
-│   ├── staking/        # Liquid staking components
-│   ├── marketplace/    # Trading interface components
-│   ├── governance/     # Governance voting components
-│   ├── dashboard/      # Dashboard and analytics
-│   └── ui/             # Reusable UI components
-├── hooks/              # Custom React hooks
-│   ├── useStaking.ts   # Staking operations
-│   ├── useExchangeRate.ts # Exchange rate tracking
-│   ├── useMarketplace.ts # Trading functions
-│   └── useGovernance.ts # Voting operations
-├── pages/              # Next.js pages
-├── public/             # Static assets
-├── styles/             # CSS/styling files
-├── utils/              # Utility functions
-├── contracts/          # Smart contract ABIs
-└── types/              # TypeScript type definitions
+STAKEANDBAKE
+├── Frontend
+│   ├── .next
+│   ├── node_modules
+│   ├── public
+│   ├── src
+│   │   ├── app
+│   │   │   ├── bridge
+│   │   │   ├── dashboard
+│   │   │   ├── how-it-works
+│   │   │   ├── marketplace
+│   │   │   ├── portfolio
+│   │   │   ├── protocol
+│   │   │   └── stake
+│   │   │       └── page.tsx
+│   │   ├── favicon.ico
+│   │   ├── globals.css
+│   │   ├── layout.tsx
+│   │   ├── page.tsx
+│   │   └── sbft-placeholder.tsx
+│   ├── components
+│   ├── hooks
+│   │   ├── useStakeAndBakeNFT.ts
+│   │   └── useTransactionHistory.ts
+│   ├── lib
+│   │   └── contractAddressAndABI.js
+│   ├── eslint.config.mjs
+│   ├── next-env.d.ts
+│   ├── next.config.ts
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── postcss.config.mjs
+│   ├── README.md
+│   └── tsconfig.json
+└── SBSmart-Contract
+    ├── artifacts
+    ├── cache
+    └── contracts
+
 ```
 
 ### Data Flow
@@ -444,15 +444,6 @@ npm run build
 
 # Deploy the 'out' or '.next' directory to your hosting provider
 ```
-
-### Environment Setup
-
-Ensure these environment variables are set in your deployment:
-
-- `NEXT_PUBLIC_CHAIN_ID`
-- `NEXT_PUBLIC_RPC_URL`
-- `NEXT_PUBLIC_XFI_TOKEN_ADDRESS`
-- `NEXT_PUBLIC_STAKING_CONTRACT_ADDRESS`
 
 ## Contributing
 
@@ -547,6 +538,7 @@ A: sbFT token holders can vote on protocol proposals. Voting power is proportion
 | **User Experience** | Complex | Simple "set and forget" |
 
 ## License
+
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
