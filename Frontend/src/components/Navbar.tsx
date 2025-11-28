@@ -49,11 +49,11 @@ export default function Navbar() {
   }, []);
 
   // toast when connectt to wallet
-  useEffect(() => {
-    if (isConnected) {
-      toast.success(`Connected to wallet address: ${address}`);
-    }
-  }, [address, isConnected]);
+  // useEffect(() => {
+  //   if (isConnected) {
+  //     toast.success(`Connected to wallet address: ${address}`);
+  //   }
+  // }, [address, isConnected]);
 
   const tradingItems: NavItem[] = [
     { href: "/marketplace", label: "Marketplace", icon: TrendingUp },
@@ -265,12 +265,14 @@ export default function Navbar() {
           <div className="hidden md:flex items-center space-x-4">
             {isConnected ? (
               <button
+                className="bg-gray-600/50 hover:bg-gray-800/50 px-4 py-2 rounded-lg focus:outline-none cursor-pointer"
                 onClick={handleConnectWallet}
               >
                 {address?.slice(0, 6) + "..." + address?.slice(-4)}
               </button>
             ) : (
               <button
+                className="bg-gray-600/50 hover:bg-gray-800/50 px-4 py-2 rounded-lg focus:outline-none cursor-pointer"
                 onClick={handleConnectWallet}
               >
                 Connect Wallet
