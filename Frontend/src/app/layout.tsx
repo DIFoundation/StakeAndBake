@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
-import { Web3Provider } from "@/components/Web3Provider";
 import Navbar from "@/components/Navbar";
 import ToastConfig from '@/components/ToastConfig';
+import { headers } from 'next/headers' // added
+import ContextProvider from '@/context'
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,6 +16,8 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const inter = Inter({ subsets: ['latin'] })
+
 export const metadata: Metadata = {
   title: "Stake & Bake | Stake XFI, Earn sbFTs",
   description:
@@ -22,17 +25,21 @@ export const metadata: Metadata = {
   themeColor: "#121212",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
+  const headersObj = await headers();
+  const cookies = headersObj.get('cookie')
+
   return (
     <html lang="en" className="dark">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-dark text-light min-h-screen`}
       >
-        <Web3Provider>
+        <ContextProvider cookies={cookies}>
           <Navbar />
           <main className="min-h-screen relative w-full bg-cover overflow-auto">
             <video
@@ -50,7 +57,7 @@ export default function RootLayout({
             {children}
             <ToastConfig />
           </main>
-        </Web3Provider>
+        </ContextProvider>
       </body>
     </html>
   );
