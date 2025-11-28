@@ -8,7 +8,6 @@ import { usePathname } from "next/navigation";
 import { useAppKit } from "@reown/appkit/react";
 import { EllipsisVertical, X, ChevronDown, ArrowLeftRight, TrendingUp, ExternalLink, Vote, Layers2 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
-import { toast } from "react-toastify";
 
 interface NavItem {
   href: string;
