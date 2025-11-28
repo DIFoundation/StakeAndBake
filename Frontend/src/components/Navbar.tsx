@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useAccount } from "wagmi";
 import { usePathname } from "next/navigation";
-
+import { useAppKit } from "@reown/appkit/react";
 import { EllipsisVertical, X, ChevronDown, ArrowLeftRight, TrendingUp, ExternalLink, Vote, Layers2 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "react-toastify";
@@ -27,6 +27,7 @@ export default function Navbar() {
   const menuRef = useRef<HTMLDivElement>(null);
   const tradingDropdownRef = useRef<HTMLDivElement>(null);
   const resourcesDropdownRef = useRef<HTMLDivElement>(null);
+  const { open } = useAppKit();
 
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -81,6 +82,14 @@ export default function Navbar() {
         { href: "/how-it-works", label: "How It Works" },
         { href: "https://github.com/DIFoundation/StakeAndBake/blob/main/README.md", label: "Docs", external: true },
       ];
+
+  const handleConnectWallet = () => {
+    if (isConnected) {
+      open({ view: "Account" });
+    } else {
+      open({ view: "Connect" });
+    }
+  };
 
   // Close menu on outside click
   useEffect(() => {
@@ -254,11 +263,19 @@ export default function Navbar() {
 
           {/* Desktop Wallet */}
           <div className="hidden md:flex items-center space-x-4">
-            {/* <ConnectButton
-              accountStatus="address"
-              chainStatus="icon"
-              showBalance={true}
-            /> */}
+            {isConnected ? (
+              <button
+                onClick={handleConnectWallet}
+              >
+                {address?.slice(0, 6) + "..." + address?.slice(-4)}
+              </button>
+            ) : (
+              <button
+                onClick={handleConnectWallet}
+              >
+                Connect Wallet
+              </button>
+            )}
           </div>
         </div>
       </div>
