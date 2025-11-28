@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
+// import { ConnectButton } from "@rainbow-me/rainbowkit";
 import Image from "next/image";
 import { useAccount } from "wagmi";
 import { usePathname } from "next/navigation";
@@ -254,11 +254,11 @@ export default function Navbar() {
 
           {/* Desktop Wallet */}
           <div className="hidden md:flex items-center space-x-4">
-            <ConnectButton
+            {/* <ConnectButton
               accountStatus="address"
               chainStatus="icon"
               showBalance={true}
-            />
+            /> */}
           </div>
         </div>
       </div>
@@ -373,11 +373,11 @@ export default function Navbar() {
           {/* Mobile Wallet */}
           <div className="border-t border-gray-700 pt-4">
             <div className="flex justify-center">
-              <ConnectButton
+              {/* <ConnectButton
                 accountStatus="address"
                 chainStatus="icon"
                 showBalance={true}
-              />
+              /> */}
             </div>
           </div>
         </div>
